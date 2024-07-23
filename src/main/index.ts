@@ -75,6 +75,13 @@ async function createWindow(): Promise<void> {
   blocker.enableBlockingInSession(ytframe.webContents.session);
   ytframe.webContents.loadURL('https://www.youtube.com/');
 
+  ipcMain.on("nav-yt", ()=>{
+    ytframe.webContents.loadURL('https://www.youtube.com/');
+  });
+  ipcMain.on("nav-music", ()=>{
+    ytframe.webContents.loadURL('https://music.youtube.com/');
+  })
+
   async function updateDiscord(): Promise<void> {
     if (!ytframe) return;
     const ytAPIKEY = "AIzaSyBaUEQ9dnGj3XVMpqZOVn5H6A66JtKfsJ8";

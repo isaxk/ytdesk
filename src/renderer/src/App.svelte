@@ -1,6 +1,6 @@
 
 <script lang="ts">
-  import { Toggle } from "bits-ui";
+  import { Tabs, Toggle } from "bits-ui";
   import DiscordIcon from "./assets/discord.svg";
   import { writable } from "svelte/store";
   import { ArrowLeft, RotateCw } from "lucide-svelte";
@@ -27,7 +27,7 @@
 
   window.electron.ipcRenderer.on("navigate", (evt, url)=>{
 	console.log(evt);
-    urlD = url.replace("https://www.youtube.com", "");
+    urlD = url.replace("https://www.youtube.com", "").replace("https://music.youtube.com","");
   })
 
   function back(): void {
@@ -37,12 +37,44 @@
   function refresh(): void {
 	window.electron.ipcRenderer.send("refresh");
   }
+
+  function yt(): void {
+	window.electron.ipcRenderer.send("nav-yt");
+  }
+
+  function music(): void {
+	window.electron.ipcRenderer.send("nav-music");
+  }
+
+  let currentTab:string = "yt";
+
+  $: window.electron.ipcRenderer.send("nav-"+currentTab);
+
+  const tabs = [
+	{
+		label: "Youtube",
+		value: "yt"
+	},
+	{
+		label: "Music",
+		value: "music"
+	}
+  ]
 </script>
 
 
-<div class="flex flex-col h-[100vh] bg-zinc-50 dark:bg-neutral-950 dark:text-white">
+<div class="flex flex-col h-[100vh] bg-zinc-100 dark:bg-neutral-800 dark:text-white">
   <div class="flex drag items-center pr-[10px] box-border h-[37px] w-full drop-shadow gap-3">
     <div class="w-[70px]"></div>
+	<div class="no-drag">
+		<Tabs.Root bind:value={currentTab}>
+			<Tabs.List class="flex items-center gap-2 text-sm no-drag">
+				{#each tabs as tab}
+				<Tabs.Trigger value={tab.value} class="no-drag px-2 py-1 text-zinc-500 transition-all data-[state=active]:bg-zinc-200 rounded-sm data-[state=active]:dark:bg-zinc-700 data-[state=active]:text-current">{tab.label}</Tabs.Trigger>
+				{/each}
+			</Tabs.List>
+		</Tabs.Root>
+	</div>
 	<div class="flex items-center no-drag">
 
 		<button on:click={back} class="hover:bg-zinc-200 dark:hover:bg-zinc-800 p-2 rounded-md transition-all">
@@ -62,7 +94,7 @@
 	</div>
     <div class="options no-drag">
       <div class="flex items-center">
-        <Toggle.Root bind:pressed={$rpcActive} class="p-2 transition-all rounded-md drop-shadow-sm flex items-center data-[state=on]:bg-neutral-300 data-[state=on]:dark:bg-neutral-800 data-[state=on]:invert-0 [&[data-state=off]>img]:saturate-0 [>img]:dark:brightness-200">
+        <Toggle.Root bind:pressed={$rpcActive} class="p-1.5 transition-all rounded-md drop-shadow-sm flex items-center data-[state=on]:bg-neutral-300 data-[state=on]:dark:bg-neutral-700 data-[state=on]:invert-0 [&[data-state=off]>img]:saturate-0 [>img]:dark:brightness-200">
           <img src={DiscordIcon} alt="Discord" class="w-4 h-4 wow drop-shadow-xl transition-all dark:invert">
         </Toggle.Root>
         
