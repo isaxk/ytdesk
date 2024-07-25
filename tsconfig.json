@@ -7,6 +7,7 @@
     "src/preload/*.d.ts"
   ],
   "compilerOptions": {
+    "noUnusedLocals": false,
     "verbatimModuleSyntax": true,
     "useDefineForClassFields": true,
     "strict": false,

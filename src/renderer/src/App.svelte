@@ -1,123 +1,71 @@
-
 <script lang="ts">
-  import { Tabs, Toggle } from "bits-ui";
-  import DiscordIcon from "./assets/discord.svg";
-  import { writable } from "svelte/store";
-  import { ArrowLeft, RotateCw } from "lucide-svelte";
-  import YTICON from "./assets/youtube.png";
-  import Spinner from "./components/Spinner.svelte";
-  
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+	import UrlBar from "./components/UrlBar.svelte";
 
-  let urlD:string = "/";
+	import Spinner from "./components/Spinner.svelte";
+	import Platform from "./components/Platform.svelte";
+	import WindowControls from "./components/WindowControls.svelte";
+	import DiscordToggle from "./components/DiscordToggle.svelte";
+	import Navigation from "./components/Navigation.svelte";
+	import Tabs from "./components/Tabs.svelte";
+	import { createFullscreenStore, createUrlDisplayStore } from "./lib/stores";
 
-  const rpcActive = writable<boolean>(false);
-  if(localStorage.rpc) {
-    rpcActive.set(JSON.parse(localStorage.rpc));
-  }
-  else {
-    localStorage.rpc = true;
-    rpcActive.set(true);
-  }
-  rpcActive.subscribe((v)=>{
-    localStorage.setItem("rpc", JSON.stringify(v));
-    window.electron.ipcRenderer.send(v ? "enable-rpc":"disable-rpc");
-  })
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	let currentTab: string = "yt";
 
+	const darkThemeMq = window.matchMedia("(prefers-color-scheme: dark)");
+	let isDark = darkThemeMq.matches;
 
-  window.electron.ipcRenderer.on("navigate", (evt, url)=>{
-	console.log(evt);
-    urlD = url.replace("https://www.youtube.com", "").replace("https://music.youtube.com","");
-  })
+	const fullscreen = createFullscreenStore(window.electron);
+	const urlDisplay = createUrlDisplayStore(window.electron);
 
-  function back(): void {
-	window.electron.ipcRenderer.send("back");
-  }
-
-  function refresh(): void {
-	window.electron.ipcRenderer.send("refresh");
-  }
-
-  function yt(): void {
-	window.electron.ipcRenderer.send("nav-yt");
-  }
-
-  function music(): void {
-	window.electron.ipcRenderer.send("nav-music");
-  }
-
-  let currentTab:string = "yt";
-
-  $: window.electron.ipcRenderer.send("nav-"+currentTab);
-
-  const tabs = [
-	{
-		label: "Youtube",
-		value: "yt"
-	},
-	{
-		label: "Music",
-		value: "music"
-	}
-  ]
+	darkThemeMq.addListener((e) => {
+		if (e.matches) {
+			isDark = true;
+		} else {
+			isDark = false;
+		}
+	});
 </script>
 
+<div
+	class="{currentTab == 'music' || isDark
+		? 'dark'
+		: 'light'} transition-all duration-300 flex flex-col h-[100vh] bg-zinc-50 dark:bg-neutral-900 dark:text-white"
+>
+	<div
+		class="{$fullscreen
+			? '-translate-y-8'
+			: 'translate-y-0'} transition-all flex drag h-[37px] items-center pr-[10px] box-border w-full gap-3"
+	>
+		<div class="w-[239px] flex items-center h-full gap-2">
+			<Platform is="darwin">
+				<div class="w-[74px]"></div>
+			</Platform>
 
-<div class="flex flex-col h-[100vh] bg-zinc-100 dark:bg-neutral-800 dark:text-white">
-  <div class="flex drag items-center pr-[10px] box-border h-[37px] w-full drop-shadow gap-3">
-    <div class="w-[70px]"></div>
-	<div class="no-drag">
-		<Tabs.Root bind:value={currentTab}>
-			<Tabs.List class="flex items-center gap-2 text-sm no-drag">
-				{#each tabs as tab}
-				<Tabs.Trigger value={tab.value} class="no-drag px-2 py-1 text-zinc-500 transition-all data-[state=active]:bg-zinc-200 rounded-sm data-[state=active]:dark:bg-zinc-700 data-[state=active]:text-current">{tab.label}</Tabs.Trigger>
-				{/each}
-			</Tabs.List>
-		</Tabs.Root>
-	</div>
-	<div class="flex items-center no-drag">
+			<Tabs bind:currentTab />
+		</div>
+		<Navigation {currentTab}/>
 
-		<button on:click={back} class="hover:bg-zinc-200 dark:hover:bg-zinc-800 p-2 rounded-md transition-all">
-			<ArrowLeft size="16"/>
-		</button>
-		<button on:click={refresh} class="hover:bg-zinc-200 dark:hover:bg-zinc-800 p-2 rounded-md transition-all">
-			<RotateCw size="14" />
-		</button>
-		
+		<UrlBar urlDisplay={$urlDisplay} {currentTab} />
+
+		<div
+			class="absolute top-0 right-0 h-full transition-all px-2 flex items-center bg-zinc-100 dark:bg-neutral-900"
+		>
+			<div
+				class="options no-drag pr-2 border-r-[1px] border-zinc-400 dark:border-zinc-700"
+			>
+				<div class="flex items-center">
+					<DiscordToggle />
+				</div>
+			</div>
+
+			<Platform is="win32">
+				<WindowControls />
+			</Platform>
+		</div>
 	</div>
-    <div class="flex-grow flex gap-0.5 items-center text-left text-xs text-zinc-600 dark:text-zinc-300">
-		
-		<img src={YTICON} alt="youtube.com" class="h-[20px]">
-		{urlD}
-	
-	
+
+	<div class="flex-grow flex items-center justify-center">
+		<Spinner />
 	</div>
-    <div class="options no-drag">
-      <div class="flex items-center">
-        <Toggle.Root bind:pressed={$rpcActive} class="p-1.5 transition-all rounded-md drop-shadow-sm flex items-center data-[state=on]:bg-neutral-300 data-[state=on]:dark:bg-neutral-700 data-[state=on]:invert-0 [&[data-state=off]>img]:saturate-0 [>img]:dark:brightness-200">
-          <img src={DiscordIcon} alt="Discord" class="w-4 h-4 wow drop-shadow-xl transition-all dark:invert">
-        </Toggle.Root>
-        
-      </div>
-    </div>
-  </div>
-  <div class="flex-grow flex items-center justify-center">
-	<Spinner />
-  </div>
 </div>
-
-
-<style>
-  .drag {
-    -webkit-app-region: drag
-  }
-  .no-drag {
-    -webkit-app-region: no-drag
-  }
-  .wow {
-    filter: invert(48%) sepia(58%) saturate(5406%) hue-rotate(221deg) brightness(95%) contrast(100%);
-  }
-  img {
-    fill: currentColor;
-  }
-</style>
