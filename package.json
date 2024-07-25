@@ -27,6 +27,8 @@
     "@xhayper/discord-rpc": "^1.1.2",
     "bits-ui": "^0.21.12",
     "discord-rich-presence": "^0.0.8",
+    "electron-json-config": "^2.0.0-beta",
+    "electron-store": "^10.0.0",
     "lucide-svelte": "^0.414.0"
   },
   "devDependencies": {

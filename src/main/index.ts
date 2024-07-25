@@ -1,12 +1,15 @@
-import { app, shell, BrowserWindow, ipcMain, WebContentsView, session } from "electron"
+import { app, shell, BrowserWindow, ipcMain, WebContentsView, session, nativeTheme } from "electron"
 import { join } from "path"
 import { electronApp, optimizer, is } from "@electron-toolkit/utils"
-import icon from "../../resources/icon.png?asset"
-
+import icon from "../../resources/icon.png?asset";
+import { factory } from 'electron-json-config';
 
 import { ElectronBlocker, f } from "@cliqz/adblocker-electron";
 
 import { Client } from "@xhayper/discord-rpc";
+import { Menu } from "lucide-svelte";
+
+const config = factory();
 
 function youtubeParser(url): string {
   const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
@@ -24,9 +27,10 @@ async function createBlocker() {
   return blocker;
 }
 
+
 const ytAPIKEY = "AIzaSyBaUEQ9dnGj3XVMpqZOVn5H6A66JtKfsJ8";
 
-function createYoutubeFrame(blocker: ElectronBlocker) {
+function createYoutubeFrame() {
   const ytframe = new WebContentsView(
     {
       webPreferences: {
@@ -36,13 +40,12 @@ function createYoutubeFrame(blocker: ElectronBlocker) {
       }
     }
   );
-  // blocker.enableBlockingInSession(ytframe.webContents.session);
   ytframe.webContents.loadURL("https://www.youtube.com");
 
   return ytframe;
 }
 
-function createMusicFrame(blocker: ElectronBlocker) {
+function createMusicFrame() {
 
   const musicframe = new WebContentsView({
     webPreferences: {
@@ -51,7 +54,6 @@ function createMusicFrame(blocker: ElectronBlocker) {
       preload: join(__dirname, "../preload/musicview.js")
     },
   })
-  blocker.enableBlockingInSession(musicframe.webContents.session);
   musicframe.webContents.loadURL("https://music.youtube.com");
 
   return musicframe;
@@ -64,18 +66,30 @@ async function createDiscordClient(this: any, clientId: string) {
 
   client.login();
 
+  // client.on("ready", () => {
+  //   client.user?.setActivity({
+  //     details: "Browsing",
+  //     smallImageKey: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/YouTube_social_white_square_%282017%29.svg/1200px-YouTube_social_white_square_%282017%29.svg.png",
+  //   })
+  // })
+
   let disabled = false;
+
+  const setBrowsing = () => {
+    if (disabled) return;
+    client.user?.setActivity({
+      details: "Browsing",
+      smallImageKey: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/YouTube_social_white_square_%282017%29.svg/1200px-YouTube_social_white_square_%282017%29.svg.png",
+    })
+  };
+
+
   return {
-    setBrowsing: () => {
-      if (disabled) return;
-      client.user?.setActivity({
-        details: "Browsing"
-      })
-    },
+    setBrowsing,
     setVideo: async (vidUrl: string) => {
       if (disabled || !client.isConnected) return;
       const vidid = await youtubeParser(vidUrl);
-      if (!vidid) return;
+      if (!vidid) { setBrowsing(); return }
       const dataRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${vidid}&key=${ytAPIKEY}`);
       const dataJSON = await dataRes.json();
       const data = (await dataJSON.items[0]).snippet;
@@ -92,35 +106,28 @@ async function createDiscordClient(this: any, clientId: string) {
         ]
       })
     },
-    setMusic: async (title: string, author: string, thumbnail: any, id: string) => {
+    setMusic: async (data) => {
       if (disabled || !client.isConnected) return;
+      if (!data) { setBrowsing(); return; }
       client.user?.setActivity({
-        details: title,
-        state: author,
-        largeImageKey: thumbnail.thumbnails[3].url,
+        details: data.title,
+        state: data.author,
+        largeImageKey: data.thumbnail.thumbnails[3].url,
         smallImageKey: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Youtube_Music_icon.svg/1024px-Youtube_Music_icon.svg.png?20230802004652",
         buttons: [
           {
             label: "Listen on YT Music",
-            url: "https://music.youtube.com/watch?v=" + id
+            url: "https://music.youtube.com/watch?v=" + data.id
           }
         ]
       })
     },
     disable: () => {
+      client.user?.clearActivity();
       disabled = true;
     },
-    enable: (vidUrl?: string, musicData?: any) => {
+    enable: () => {
       disabled = false;
-      if (vidUrl) {
-        this.setVideo(vidUrl);
-      }
-      else if (musicData) {
-        this.setMusic(...musicData);
-      }
-      else {
-        this.setBrowsing();
-      }
     }
   }
 }
@@ -142,8 +149,10 @@ async function createWindow(): Promise<BrowserWindow> {
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
-    backgroundColor: "#121212",
-    show: false,
+    minWidth: 640,
+    minHeight: 500,
+    backgroundColor: nativeTheme.shouldUseDarkColors ? '#171717' : '#fafafa',
+    show: true,
     autoHideMenuBar: true,
     titleBarStyle: "hiddenInset",
     frame: false,
@@ -200,6 +209,11 @@ function switchView(win: BrowserWindow, start: WebContentsView, end: WebContents
 
 
 app.whenReady().then(async () => {
+  if(!config.get("theme")) {
+    config.set("theme", "system");
+  }
+
+
   electronApp.setAppUserModelId("com.electron")
 
   app.on("browser-window-created", (_, window) => {
@@ -207,15 +221,15 @@ app.whenReady().then(async () => {
   })
 
 
-  const blocker = await createBlocker();
-  blocker.enableBlockingInSession(session.defaultSession);
+  if (config.get("ad-blocking") === true) {
+    const blocker = await createBlocker();
+    blocker.enableBlockingInSession(session.defaultSession);
+  }
 
   mainWindow = await createWindow();
 
-  ytFrame = await createYoutubeFrame(blocker);
-  musicFrame = await createMusicFrame(blocker);
-
-  ytFrame.webContents.toggleDevTools();
+  ytFrame = await createYoutubeFrame();
+  musicFrame = await createMusicFrame();
 
   let activeFrame = ytFrame;
 
@@ -223,10 +237,6 @@ app.whenReady().then(async () => {
   mainWindow.contentView.addChildView(musicFrame);
 
   const discordRPC = await createDiscordClient("1265008196876242944");
-
-  mainWindow.on("ready-to-show", () => {
-    mainWindow.show();
-  });
 
   function setBoundsOnActive(newBounds) {
     if (activeFrame === ytFrame) {
@@ -238,8 +248,11 @@ app.whenReady().then(async () => {
   }
 
   let isFullscreen = false;
+  let isLoaded = false;
+  let isSettings = false;
 
   mainWindow.on("resize", () => {
+    if (isSettings) return;
     setBoundsOnActive({ x: 0, y: isFullscreen ? 0 : headerHeight, width: mainWindow.getBounds().width, height: mainWindow.getBounds().height - (isFullscreen ? 0 : headerHeight) });
   })
 
@@ -247,6 +260,13 @@ app.whenReady().then(async () => {
     isFullscreen = true;
     setBoundsOnActive({ x: 0, y: 0, width: mainWindow.getBounds().width, height: mainWindow.getBounds().height });
     mainWindow.webContents.send("enter-full-screen");
+  });
+
+  ytFrame.webContents.on("did-finish-load", () => {
+    if(isLoaded) return;
+    isLoaded = true;
+    mainWindow.webContents.send("loaded");
+    setBoundsOnActive({ x: 0, y: isFullscreen ? 0 : headerHeight, width: mainWindow.getBounds().width, height: mainWindow.getBounds().height - (isFullscreen ? 0 : headerHeight) });
   })
 
   ytFrame.webContents.on("leave-html-full-screen", () => {
@@ -269,6 +289,7 @@ app.whenReady().then(async () => {
 
 
   let ytmState = 0;
+  let ytmData = null;
 
   ytFrame.webContents.on("did-navigate-in-page", () => {
     const url = ytFrame.webContents.getURL();
@@ -279,11 +300,47 @@ app.whenReady().then(async () => {
     const url = musicFrame.webContents.getURL();
     mainWindow.webContents.send("navigate", url);
   })
+  ytFrame.webContents.on("did-navigate", () => {
+    const url = ytFrame.webContents.getURL();
+    discordRPC.setVideo(url);
+    mainWindow.webContents.send("navigate", url);
+  })
+  musicFrame.webContents.on("did-navigate", () => {
+    const url = musicFrame.webContents.getURL();
+    mainWindow.webContents.send("navigate", url);
+  })
   ipcMain.on('ytmView:videoDataChanged', (_, data) => {
-    discordRPC.setMusic(data.title, data.author, data.thumbnail, data.videoId);
+    ytmData = data;
+    discordRPC.setMusic(data);
   })
   ipcMain.on('ytmView:videoStateChanged', (_, state) => {
     ytmState = state;
+  })
+  ipcMain.on("enable-rpc", () => {
+    discordRPC.enable();
+    if (activeFrame === ytFrame) {
+      discordRPC.setVideo(ytFrame.webContents.getURL())
+    }
+    else {
+      discordRPC.setMusic(ytmData);
+    }
+  });
+  ipcMain.on("disable-rpc", () => {
+    discordRPC.disable();
+  })
+
+  ipcMain.on("open-settings", () => {
+    isSettings = true;
+    if (activeFrame === ytFrame) {
+      ytFrame.setBounds({ x: 0, y: 0, width: 0, height: 0 });
+    }
+    else {
+      musicFrame.setBounds({ x: 0, y: 0, width: 0, height: 0 });
+    }
+  });
+  ipcMain.on("close-settings", () => {
+    isSettings = false;
+    setBoundsOnActive({ x: 0, y: headerHeight, width: mainWindow.getBounds().width, height: mainWindow.getBounds().height - headerHeight });
   })
 
 
@@ -294,11 +351,16 @@ app.whenReady().then(async () => {
         if (ytmState === 1) {
           musicFrame.webContents.send("remoteControl:execute", "pause");
         }
+        discordRPC.setVideo(ytFrame.webContents.getURL());
         mainWindow.webContents.send("navigate", ytFrame.webContents.getURL());
-        activeFrame = switchView(mainWindow, musicFrame, ytFrame);
+        if (isLoaded) {
+          activeFrame = switchView(mainWindow, musicFrame, ytFrame);
+        }
+
 
       }
       else if (to === "music") {
+        discordRPC.setMusic(ytmData);
         mainWindow.webContents.send("navigate", musicFrame.webContents.getURL());
         ytFrame.webContents.send("player-action", "pause");
         activeFrame = switchView(mainWindow, ytFrame, musicFrame);
@@ -312,7 +374,26 @@ app.whenReady().then(async () => {
     else if (data.action === "refresh") {
       activeFrame.webContents.reload();
     }
+  });
+
+  app.on("before-quit", () => {
+    discordRPC.disable();
+  });
+
+  ipcMain.on("update-config", (_, key, value) => {
+    config.set(key, value);
+    mainWindow.webContents.send("refresh-config");
+    ytFrame.webContents.send("force-cinema", config.get("force-cinema"));
+    if(key==="force-cinema") {
+      ytFrame.webContents.reload();
+    }
   })
+
+  ipcMain.handle("get-all-config", () => {
+    return config.all();
+  })
+
+
 
   app.on("activate", function () {
     // On macOS it"s common to re-create a window in the app when the

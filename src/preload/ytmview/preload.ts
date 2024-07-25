@@ -8,6 +8,10 @@
 //   - Always wrap your executeJavaScript code in an IIFE calling it from outside executeJavaScript when it returns
 // - Add functions to exposeInMainWorld when you need to call back to the main program. By nature you should not trust data coming from this.
 
+
+
+/* @vite-ignore */
+
 import { contextBridge, ipcRenderer, webFrame } from "electron";
 
 const playerBarControlsScript = `
@@ -155,181 +159,6 @@ const playerBarControlsScript = `
       currentVideoId = document.querySelector("ytmusic-app-layout>ytmusic-player-bar").playerApi.getPlayerResponse().videoDetails.videoId;
     }
   });
-
-  let rightControls = document.querySelector("ytmusic-app-layout>ytmusic-player-bar").querySelector(".right-controls-buttons");
-  let sleepTimerButton = document.createElement("tp-yt-paper-icon-button");
-  sleepTimerButton.setAttribute("title", "Sleep timer off");
-  sleepTimerButton.classList.add("ytmusic-player-bar");
-  sleepTimerButton.classList.add("ytmd-player-bar-control");
-  sleepTimerButton.classList.add("sleep-timer-button");
-  sleepTimerButton.set("icon", "yt-sys-icons:stopwatch");
-  sleepTimerButton.onclick = () => {
-    sleepTimerButton.dispatchEvent(
-      new CustomEvent("yt-action", {
-        bubbles: true,
-        cancelable: false,
-        composed: true,
-        detail: {
-          actionName: "yt-open-popup-action",
-          args: [
-            {
-              openPopupAction: {
-                popup: {
-                  menuPopupRenderer: {
-                    accessibilityData: {
-                      label: "Action menu"
-                    },
-                    items: [
-                      {
-                        menuServiceItemRenderer: {
-                          icon: {
-                            iconType: "CLOCK"
-                          },
-                          serviceEndpoint: {
-                            ytmdSleepTimerServiceEndpoint: {
-                              time: 5
-                            }
-                          },
-                          text: {
-                            runs: [
-                              {
-                                text: "5 minutes"
-                              }
-                            ]
-                          }
-                        }
-                      },
-                      {
-                        menuServiceItemRenderer: {
-                          icon: {
-                            iconType: "CLOCK"
-                          },
-                          serviceEndpoint: {
-                            ytmdSleepTimerServiceEndpoint: {
-                              time: 10
-                            }
-                          },
-                          text: {
-                            runs: [
-                              {
-                                text: "10 minutes"
-                              }
-                            ]
-                          }
-                        }
-                      },
-                      {
-                        menuServiceItemRenderer: {
-                          icon: {
-                            iconType: "CLOCK"
-                          },
-                          serviceEndpoint: {
-                            ytmdSleepTimerServiceEndpoint: {
-                              time: 15
-                            }
-                          },
-                          text: {
-                            runs: [
-                              {
-                                text: "15 minutes"
-                              }
-                            ]
-                          }
-                        }
-                      },
-                      {
-                        menuServiceItemRenderer: {
-                          icon: {
-                            iconType: "CLOCK"
-                          },
-                          serviceEndpoint: {
-                            ytmdSleepTimerServiceEndpoint: {
-                              time: 30
-                            }
-                          },
-                          text: {
-                            runs: [
-                              {
-                                text: "30 minutes"
-                              }
-                            ]
-                          }
-                        }
-                      },
-                      {
-                        menuServiceItemRenderer: {
-                          icon: {
-                            iconType: "CLOCK"
-                          },
-                          serviceEndpoint: {
-                            ytmdSleepTimerServiceEndpoint: {
-                              time: 45
-                            }
-                          },
-                          text: {
-                            runs: [
-                              {
-                                text: "45 minutes"
-                              }
-                            ]
-                          }
-                        }
-                      },
-                      {
-                        menuServiceItemRenderer: {
-                          icon: {
-                            iconType: "CLOCK"
-                          },
-                          serviceEndpoint: {
-                            ytmdSleepTimerServiceEndpoint: {
-                              time: 60
-                            }
-                          },
-                          text: {
-                            runs: [
-                              {
-                                text: "1 hour"
-                              }
-                            ]
-                          }
-                        }
-                      },
-                      sleepTimerTimeout !== null
-                        ? {
-                            menuServiceItemRenderer: {
-                              icon: {
-                                iconType: "DELETE"
-                              },
-                              serviceEndpoint: {
-                                ytmdSleepTimerServiceEndpoint: {
-                                  time: 0
-                                }
-                              },
-                              text: {
-                                runs: [
-                                  {
-                                    text: "Clear sleep timer"
-                                  }
-                                ]
-                              }
-                            }
-                          }
-                        : {}
-                    ]
-                  }
-                },
-                popupType: "DROPDOWN"
-              }
-            },
-            sleepTimerButton
-          ],
-          optionalAction: false,
-          returnValue: []
-        }
-      })
-    );
-  };
-  rightControls.querySelector(".shuffle").insertAdjacentElement("afterend", sleepTimerButton);
 
   const humanizeTime = (time) => {
     // This is just a hacked together function to provide a humanization for the sleep timer. It serves no purpose outside that and isn't some complicated humanizer
@@ -894,9 +723,9 @@ function createNavigationMenuArrows() {
   if (!pivotBar) {
     // New YTM UI
     const searchBar = document.querySelector("ytmusic-search-box");
-    const navBar = searchBar.parentNode;
-    navBar.insertBefore(historyForwardElement, searchBar);
-    navBar.insertBefore(historyBackElement, historyForwardElement);
+    const navBar = searchBar?.parentNode;
+    navBar?.insertBefore(historyForwardElement, searchBar);
+    navBar?.insertBefore(historyBackElement, historyForwardElement);
   } else {
     historyForwardElement.classList.add("pivotbar");
     historyBackElement.classList.add("pivotbar");
@@ -1064,14 +893,15 @@ window.addEventListener("load", async () => {
 
   // const integrationScripts: { [integrationName: string]: { [scriptName: string]: string } } = await ipcRenderer.invoke("ytmView:getIntegrationScripts");
 
+  // @ts-ignore: Unreachable code error
   const integrationScripts: { [integrationName: string]: { [scriptName: string]: string } } = null;
-  const state = await store.get("state");
+  const state:any = await store.get("state");
   // const continueWhereYouLeftOff = (await store.get("playback")).continueWhereYouLeftOff;
   const continueWhereYouLeftOff = false;
 
   if (continueWhereYouLeftOff) {
     // The last page the user was on is already a page where it will be playing a song from (no point telling YTM to play it again)
-    if (!state.lastUrl.startsWith("https://music.youtube.com/watch")) {
+    if (!state?.lastUrl.startsWith("https://music.youtube.com/watch")) {
       if (state.lastVideoId) {
         // This height transition check is a hack to fix the `Start playback` hint from not being in the correct position https://github.com/ytmdesktop/ytmdesktop/issues/1159
         let heightTransitionCount = 0;
@@ -1087,11 +917,13 @@ window.addEventListener("load", async () => {
               )();
               heightTransitionCount++;
               if (heightTransitionCount >= 2) {
+                // @ts-ignore: Unreachable code error
                 document.querySelector("ytmusic-app-layout>ytmusic-player-bar").removeEventListener("transitionend", transitionEnd);
               }
             }
           }
         };
+        // @ts-ignore: Unreachable code error
         document.querySelector("ytmusic-app-layout>ytmusic-player-bar").addEventListener("transitionend", transitionEnd);
 
         document.dispatchEvent(
@@ -1121,8 +953,8 @@ window.addEventListener("load", async () => {
   // const alwaysShowVolumeSlider = (await store.get("appearance")).alwaysShowVolumeSlider;
   const alwaysShowVolumeSlider = false;
   
-  if (alwaysShowVolumeSlider) {
-    document.querySelector("ytmusic-app-layout>ytmusic-player-bar #volume-slider").classList.add("ytmd-persist-volume-slider");
+  if (alwaysShowVolumeSlider && document) {
+    document.querySelector("ytmusic-app-layout>ytmusic-player-bar #volume-slider")?.classList.add("ytmd-persist-volume-slider");
   }
 
   ipcRenderer.on("remoteControl:execute", async (_event, command, value) => {
@@ -1378,7 +1210,7 @@ window.addEventListener("load", async () => {
   ipcRenderer.on("ytmView:getPlaylists", async (_event, requestId) => {
     const rawPlaylists = await (await webFrame.executeJavaScript(getPlaylistsScript))();
 
-    const playlists = [];
+    const playlists: Array<any> = [];
     for (const rawPlaylist of rawPlaylists) {
       const playlist = rawPlaylist.playlistAddToOptionRenderer;
       playlists.push({
@@ -1392,13 +1224,13 @@ window.addEventListener("load", async () => {
   store.onDidAnyChange(newState => {
     if (newState.appearance.alwaysShowVolumeSlider) {
       const volumeSlider = document.querySelector("#volume-slider");
-      if (!volumeSlider.classList.contains("ytmd-persist-volume-slider")) {
-        volumeSlider.classList.add("ytmd-persist-volume-slider");
+      if (!volumeSlider?.classList.contains("ytmd-persist-volume-slider")) {
+        volumeSlider?.classList.add("ytmd-persist-volume-slider");
       }
     } else {
       const volumeSlider = document.querySelector("#volume-slider");
-      if (volumeSlider.classList.contains("ytmd-persist-volume-slider")) {
-        volumeSlider.classList.remove("ytmd-persist-volume-slider");
+      if (volumeSlider?.classList.contains("ytmd-persist-volume-slider")) {
+        volumeSlider?.classList.remove("ytmd-persist-volume-slider");
       }
     }
   });

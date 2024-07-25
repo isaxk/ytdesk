@@ -12,7 +12,7 @@
 	}
 </script>
 
-<div class="flex items-center no-drag">
+<div class="flex items-center no-drag text-black dark:text-white">
 	<button
 		on:click={back}
 		class="hover:bg-zinc-200 dark:hover:bg-zinc-800 p-2 rounded-md transition-all"
