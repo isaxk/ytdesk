@@ -6,6 +6,6 @@
 
 <style lang="postcss">
     :global(body) {
-        @apply bg-zinc-900 text-white;
+        @apply bg-zinc-900 text-white overflow-x-hidden;
     }
 </style>
