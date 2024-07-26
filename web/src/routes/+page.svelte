@@ -6,11 +6,11 @@
 <div
 	class="pt-0 h-[110vh] relative overflow-hidden bg-gradient-to-tr from-slate-950 to-emerald-950"
 >
-	<div class="flex flex-col items-center justify-center w-screen-2xl m-auto h-full overflow-hidden">
+	<div class="flex flex-col items-center justify-center w-screen-xl m-auto h-full overflow-hidden">
 		<img
 			src="/trendingpage.png"
 			alt="Trending Page"
-			class="w-2/3 max-w-[1100px] self-start glide-left"
+			class="w-[120%] -ml-40 xl:ml-0 2xl:w-2/3 max-w-[1100px] self-start glide-left"
 		/>
 		<div class="text-center flex flex-col gap-2 mb-5">
 			<div class="text-6xl font-black flex gap-2 items-center">
@@ -28,7 +28,7 @@
 		<img
 			src="/musicpage.png"
 			alt="Music Page"
-			class="w-2/3 max-w-[1100px] self-end glide-right"
+			class="w-[120%] -mr-40 xl:mr-0 2xl:w-2/3 max-w-[1100px] self-end glide-right"
 		/>
 	</div>
 	<div
