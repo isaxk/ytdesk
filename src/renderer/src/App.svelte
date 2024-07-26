@@ -68,6 +68,10 @@
 	window.electron.ipcRenderer.on("loaded", () => {
 		isLoaded = true;
 	});
+
+	window.electron.ipcRenderer.on("open-settings", () => {
+		openSettings();
+	});
 </script>
 
 <div
@@ -111,7 +115,7 @@
 						<IconButton on:click={openSettings} icon={SettingsIcon}/>
 					</div>
 				{/if}
-				<Platform is="darwin">
+				<Platform is="win32">
 					<WindowControls />
 				</Platform>
 			</div>

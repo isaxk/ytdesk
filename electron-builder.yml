@@ -1,5 +1,5 @@
 appId: com.electron.app
-productName: ytdesk
+productName: YT Desk
 directories:
   buildResources: build
 files:

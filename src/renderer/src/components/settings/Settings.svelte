@@ -60,7 +60,7 @@
 				<SettingsItem label="App Theme"><ThemeSelector value={config["theme"]} key="theme"/></SettingsItem>
 			</Tabs.Content>
 			<Tabs.Content value="yt" class="flex-grow">
-				<SettingsItem label="Ad Blocking" requiredRestart><Switch key="ad-blocking" checked={config["ad-blocking"]}/></SettingsItem>
+				<SettingsItem label="Ad Blocking"><Switch key="ad-blocking" checked={config["ad-blocking"]}/></SettingsItem>
 				<SettingsItem label="Force Cinema Mode"><Switch key="force-cinema" checked={config["force-cinema"]}/></SettingsItem>
 				<SettingsItem label="Accent Color"><ColorPicker {isDark} key="yt-accent-color" hex={config["yt-accent-color"]}/></SettingsItem>
 			</Tabs.Content>

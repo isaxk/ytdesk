@@ -16,6 +16,10 @@
 			value: "music",
 		},
 	];
+
+	window.electron.ipcRenderer.on("nav", (_, m)=>{
+		currentTab=m;
+	})
 </script>
 
 <Tabs.Root

@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain, WebContentsView, session, nativeTheme } from "electron"
+import { app, shell, BrowserWindow, ipcMain, WebContentsView, session, nativeTheme, Menu } from "electron"
 import { join } from "path"
 import { electronApp, optimizer, is } from "@electron-toolkit/utils"
 import icon from "../../resources/icon.png?asset";
@@ -8,7 +8,6 @@ import { hexToCSSFilter } from 'hex-to-css-filter';
 import { ElectronBlocker, f } from "@cliqz/adblocker-electron";
 
 import { Client } from "@xhayper/discord-rpc";
-import { Menu } from "lucide-svelte";
 
 const config = factory();
 
@@ -88,6 +87,14 @@ async function createDiscordClient(this: any, clientId: string) {
     })
   };
 
+  const disable = () => {
+    client.user?.clearActivity();
+    disabled = true;
+  }
+  const enable = () => {
+    disabled = false;
+  }
+
 
   return {
     setBrowsing,
@@ -127,12 +134,11 @@ async function createDiscordClient(this: any, clientId: string) {
         ]
       })
     },
-    disable: () => {
-      client.user?.clearActivity();
-      disabled = true;
-    },
-    enable: () => {
-      disabled = false;
+    enable,
+    disable,
+    toggle: () => {
+      if (disabled) enable();
+      else disable();
     }
   }
 }
@@ -208,12 +214,101 @@ function handleWindowControl(event, message) {
 function switchView(win: BrowserWindow, start: WebContentsView, end: WebContentsView) {
   start.setBounds({ x: 0, y: 0, width: 0, height: 0 });
   end.setBounds({ x: 0, y: headerHeight, width: win.getBounds().width, height: win.getBounds().height - headerHeight });
-
   return end;
 }
 
+const isMac = process.platform === "darwin";
 
 app.whenReady().then(async () => {
+  const template: Array<Electron.MenuItem | Electron.MenuItemConstructorOptions> = [
+    isMac ? {
+      label: "YTDesk",
+      submenu: [
+        {
+          label: "Settings",
+          accelerator: "Cmd+,",
+          click: () => {
+            isSettings = true;
+            mainWindow.webContents.send("open-settings");
+          }
+        },
+        { type: "separator" },
+        { role: "hide" },
+        { role: "hideOthers" },
+        { type: "separator" },
+        { role: "quit" }
+      ]
+    } : {},
+    {
+      label: "File",
+      submenu: [
+        { role: "close" },
+        { type: "separator" },
+        {
+          label: "Switch to Youtube",
+          accelerator: "Alt+Y",
+          click: () => {
+            mainWindow.webContents.send("nav", "yt");
+          }
+        },
+        {
+          label: "Switch to Music",
+          accelerator: "Alt+M",
+          click: () => {
+            mainWindow.webContents.send("nav", "music");
+          }
+        }
+      ]
+    },
+    { role: 'editMenu' },
+    {
+      label: 'View',
+      submenu: [
+        {
+          label: "Go Back",
+          click: () => activeFrame.webContents.goBack(),
+          accelerator: isMac ? "Cmd+Backspace" : "Control+Backspace"
+        },
+        {
+          label: "Reload",
+          click: () => activeFrame.webContents.reload(),
+          accelerator: isMac ? "Cmd+R" : "Control+R"
+        },
+        { type: 'separator' },
+        {
+          label: "Zoom In",
+          click: () => activeFrame.webContents.setZoomFactor(activeFrame.webContents.getZoomFactor() + 0.2),
+          accelerator: isMac ? "Cmd+Plus" : "Control+Plus"
+        },
+        {
+          label: "Zoom Out",
+          click: () => activeFrame.webContents.setZoomFactor(activeFrame.webContents.getZoomFactor() - 0.2),
+          accelerator: isMac ? "Cmd+-" : "Control+-"
+        },
+        {
+          label: "Reset Zoom",
+          click: () => activeFrame.webContents.setZoomFactor(1),
+          accelerator: isMac ? "Cmd+0" : "Control+0"
+        },
+        { type: 'separator' },
+        { role: 'togglefullscreen' }
+      ]
+    },
+    { role: 'windowMenu' },
+    {
+      role: 'help',
+      submenu: [
+        {
+          label: 'Learn More',
+          click: async () => {
+            const { shell } = require('electron')
+            await shell.openExternal('https://electronjs.org')
+          }
+        }
+      ]
+    }
+  ];
+
   if (!config.get("theme")) {
     config.set("theme", "system");
   }
@@ -225,11 +320,15 @@ app.whenReady().then(async () => {
     optimizer.watchWindowShortcuts(window)
   })
 
+  let blocker: ElectronBlocker;
 
   if (config.get("ad-blocking") === true) {
-    const blocker = await createBlocker();
+    blocker = await createBlocker();
     blocker.enableBlockingInSession(session.defaultSession);
   }
+
+  const menu = Menu.buildFromTemplate(template)
+  Menu.setApplicationMenu(menu);
 
   mainWindow = await createWindow();
 
@@ -317,7 +416,6 @@ app.whenReady().then(async () => {
     mainWindow.webContents.send("leave-full-screen");
   })
 
-  ytFrame.webContents.toggleDevTools();
 
   musicFrame.webContents.on("enter-html-full-screen", () => {
     isFullscreen = true;
@@ -502,13 +600,23 @@ app.whenReady().then(async () => {
     )
   }
 
-  ipcMain.on("update-config", (_, key, value) => {
+  ipcMain.on("update-config", async (_, key, value) => {
     config.set(key, value);
     mainWindow.webContents.send("refresh-config");
     ytFrame.webContents.send("force-cinema", config.get("force-cinema"));
     switch (key) {
       case "force-cinema":
-        ytFrame.webContents.reload();
+        activeFrame.webContents.reload();
+        break;
+      case "ad-blocking":
+        if (value === false && blocker) {
+          blocker.disableBlockingInSession(session.defaultSession);
+        }
+        else {
+          if (!blocker) blocker = await createBlocker();
+          blocker.enableBlockingInSession(session.defaultSession);
+        }
+        activeFrame.webContents.reload();
         break;
     }
   })

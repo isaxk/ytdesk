@@ -1,6 +1,7 @@
 {
   "name": "ytdesk",
-  "version": "1.0.0",
+  "productName": "YT Desk",
+  "version": "0.0.4",
   "description": "An Electron application with Svelte and TypeScript",
   "main": "./out/main/index.js",
   "author": "example.com",
