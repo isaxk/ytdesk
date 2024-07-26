@@ -9,7 +9,7 @@
 	<img
 		src="/trendingpage.png"
 		alt="Trending Page"
-		class="w-2/3 self-start glide-left"
+		class="w-[1100px] self-start glide-left"
 	/>
 	<div class="text-center flex flex-col gap-2 mb-5">
 		<div class="text-6xl font-black flex gap-2 items-center"><img src="/icon.png" alt="Icon" class="w-[80px] translate-y-0.5"/> YT Desk</div>
@@ -25,7 +25,7 @@
 	<img
 		src="/musicpage.png"
 		alt="Music Page"
-		class="w-2/3 self-end glide-right"
+		class="w-[1100px] self-end glide-right"
 	/>
 	<div
 		class="absolute left-0 bottom-0 w-full h-[30vh] bg-gradient-to-b from-transparent via-zinc-900 via-90% to-zinc-900"

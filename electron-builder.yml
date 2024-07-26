@@ -14,6 +14,7 @@ asarUnpack:
 win:
   executableName: ytdesk
 nsis:
+  oneClick: false
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}

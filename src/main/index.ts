@@ -3,11 +3,12 @@ import { join } from "path"
 import { electronApp, optimizer, is } from "@electron-toolkit/utils"
 import icon from "../../resources/icon.png?asset";
 import { factory } from 'electron-json-config';
-import { hexToCSSFilter } from 'hex-to-css-filter';
 
-import { ElectronBlocker, f } from "@cliqz/adblocker-electron";
+import { ElectronBlocker } from "@cliqz/adblocker-electron";
 
 import { Client } from "@xhayper/discord-rpc";
+
+// require('update-electron-app')();
 
 const config = factory();
 
@@ -182,13 +183,6 @@ async function createWindow(): Promise<BrowserWindow> {
     win.loadFile(join(__dirname, "../renderer/index.html"))
   }
 
-  app.on("second-instance", () => {
-    if (win) {
-      if (win.isMinimized()) win.restore()
-      win.focus()
-    }
-  })
-
   return win;
 }
 
@@ -220,29 +214,31 @@ function switchView(win: BrowserWindow, start: WebContentsView, end: WebContents
 const isMac = process.platform === "darwin";
 
 app.whenReady().then(async () => {
-  const template: Array<Electron.MenuItem | Electron.MenuItemConstructorOptions> = [
-    isMac ? {
-      label: "YTDesk",
-      submenu: [
-        {
-          label: "Settings",
-          accelerator: "Cmd+,",
-          click: () => {
-            isSettings = true;
-            mainWindow.webContents.send("open-settings");
-          }
-        },
-        { type: "separator" },
-        { role: "hide" },
-        { role: "hideOthers" },
-        { type: "separator" },
-        { role: "quit" }
-      ]
-    } : {},
+  const template: Array<any> = [
+    ...(isMac ? [
+      {
+        label: "YTDesk",
+        submenu: [
+          {
+            label: "Settings",
+            accelerator: "Cmd+,",
+            click: () => {
+              isSettings = true;
+              mainWindow.webContents.send("open-settings");
+            }
+          },
+          { type: "separator" },
+          { role: "hide" },
+          { role: "hideOthers" },
+          { type: "separator" },
+          { role: "quit" }
+        ]
+      }
+    ] : []),
     {
       label: "File",
       submenu: [
-        { role: "close" },
+        isMac ? { role: 'close' } : { role: 'quit' },
         { type: "separator" },
         {
           label: "Switch to Youtube",
@@ -376,13 +372,6 @@ app.whenReady().then(async () => {
     if (isPreventedNavOrRedirect(url)) {
       event.preventDefault();
       shell.openExternal(reqUrl);
-    }
-  }
-
-  function windowOpenHandler(url): { action: string } {
-    shell.openExternal(url);
-    return {
-      action: "deny"
     }
   }
 
@@ -625,14 +614,6 @@ app.whenReady().then(async () => {
     return config.all();
   });
 
-
-
-
-  app.on("activate", function () {
-    // On macOS it"s common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
-  })
 })
 
 // Quit when all windows are closed, except on macOS. There, it"s common

@@ -1,7 +1,7 @@
 {
   "name": "ytdesk",
   "productName": "YT Desk",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "description": "An Electron application with Svelte and TypeScript",
   "main": "./out/main/index.js",
   "author": "example.com",
@@ -33,7 +33,8 @@
     "electron-json-config": "^2.0.0-beta",
     "electron-store": "^10.0.0",
     "hex-to-css-filter": "^5.4.0",
-    "lucide-svelte": "^0.414.0"
+    "lucide-svelte": "^0.414.0",
+    "update-electron-app": "^3.0.0"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "^2.0.0",
