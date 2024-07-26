@@ -38,13 +38,13 @@
 <div
 	class="pt-24 px-16 pb-10 flex flex-col md:flex-row justify-center max-w-screen-lg m-auto gap-10"
 >
-	<div class="w-full md:w-1/2 flex flex-col gap-5 px-5 pt-5 text-center md:text-left">
+	<div class="w-full md:w-[40%] flex flex-col gap-5 px-5 pt-5 text-center md:text-left">
 		<div class="text-4xl font-bold">Discord Rich<br />Presence</div>
 		<div class="text-xl">
 			Let your friends know what you're watching or listening to.
 		</div>
 	</div>
-	<div class="relative md:w-1/2">
+	<div class="relative md:w-[60%] md:pl-10">
 		<img
 			src="/3nightsrpc.png"
 			alt="Discord Rich Presensce"
@@ -53,7 +53,7 @@
 		<img
 			src="/mrbeastrpc.png"
 			alt="Discord Rich Presensce"
-			class="w-72 absolute top-10 left-40 rounded-lg big-shadow"
+			class="w-72 absolute top-10 left-60 rounded-lg big-shadow"
 		/>
 		<div
 			class="absolute -bottom-20 left-0 w-[120%] h-60 bg-gradient-to-b from-transparent to-zinc-900"
