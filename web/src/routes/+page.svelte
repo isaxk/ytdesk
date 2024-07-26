@@ -36,7 +36,7 @@
 	></div>
 </div>
 <div
-	class="pt-24 px-16 pb-10 flex flex-col md:flex-row justify-center max-w-screen-lg m-auto gap-10"
+	class="pt-24 px-5 pb-10 flex flex-col md:flex-row justify-center max-w-screen-lg m-auto gap-10 overflox-x-hidden"
 >
 	<div class="w-full md:w-[40%] flex flex-col gap-5 px-5 pt-5 text-center md:text-left">
 		<div class="text-4xl font-bold">Discord Rich<br />Presence</div>
@@ -44,24 +44,24 @@
 			Let your friends know what you're watching or listening to.
 		</div>
 	</div>
-	<div class="relative md:w-[60%] md:pl-10">
+	<div class="relative md:w-[60%] pl-0 md:pl-10 scale-75 md:scale-100 overflox-x-hidden">
 		<img
 			src="/3nightsrpc.png"
 			alt="Discord Rich Presensce"
-			class="w-72 rounded-lg brightness-75"
+			class="w-72 rounded-lg brightness-75 -ml-10 md:ml-0"
 		/>
 		<img
 			src="/mrbeastrpc.png"
 			alt="Discord Rich Presensce"
-			class="w-72 absolute top-10 left-60 rounded-lg big-shadow"
+			class="w-72 absolute top-10 left-32 md:left-60 rounded-lg big-shadow"
 		/>
 		<div
-			class="absolute -bottom-20 left-0 w-[120%] h-60 bg-gradient-to-b from-transparent to-zinc-900"
+			class="absolute -bottom-20 left-0 md:w-[120%] h-60 bg-gradient-to-b from-transparent to-zinc-900"
 		></div>
 	</div>
 </div>
 <div
-	class="pt-20 px-16 pb-52 flex flex-col-reverse md:flex-row justify-center max-w-screen-lg gap-10 m-auto"
+	class="pt-20 px-5 pb-52 flex flex-col-reverse md:flex-row justify-center max-w-screen-lg gap-10 m-auto"
 >
 	<ChangingColours />
 	<div class="md:w-[40%] flex flex-col gap-5 pt-5 text-center md:text-left">
@@ -77,7 +77,7 @@
 	<div class="text-4xl font-bold text-center border-b-2 border-zinc-600 pb-5">
 		And more...
 	</div>
-	<div class="grid grid-cols-3">
+	<div class="grid md:grid-cols-3">
 		<FeatureGridItem
 			title="Ad blocking"
 			description="Uninterupted watching and listening"
