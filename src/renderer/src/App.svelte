@@ -11,6 +11,7 @@
 	import { fade } from "svelte/transition";
 	import Settings from "./components/settings/Settings.svelte";
 	import { SettingsIcon } from "lucide-svelte";
+	import IconButton from "./components/IconButton.svelte";
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let currentTab: string = "yt";
@@ -18,11 +19,9 @@
 	let isLoaded: boolean = false;
 
 	const darkThemeMq = window.matchMedia("(prefers-color-scheme: dark)");
-	
 
 	const fullscreen = createFullscreenStore(window.electron);
 	const urlDisplay = createUrlDisplayStore(window.electron);
-
 
 	let config: any = null;
 	let isDark = darkThemeMq.matches;
@@ -33,16 +32,14 @@
 
 	getConfig();
 
-	window.electron.ipcRenderer.on("refresh-config", ()=>getConfig());
+	window.electron.ipcRenderer.on("refresh-config", () => getConfig());
 
-	$: if(config) {
-		if(config["theme"]==="light") {
+	$: if (config) {
+		if (config["theme"] === "light") {
 			isDark = false;
-		}
-		else if(config["theme"]==="dark") {
+		} else if (config["theme"] === "dark") {
 			isDark = true;
-		}
-		else {
+		} else {
 			isDark = darkThemeMq.matches;
 		}
 	}
@@ -57,8 +54,9 @@
 
 	let mounted = false;
 
-	onMount(() => {
+	onMount(async () => {
 		mounted = true;
+		isLoaded = await window.electron.ipcRenderer.invoke("is-loaded");
 	});
 
 	function openSettings() {
@@ -70,8 +68,6 @@
 	window.electron.ipcRenderer.on("loaded", () => {
 		isLoaded = true;
 	});
-
-
 </script>
 
 <div
@@ -91,7 +87,9 @@
 					<div class="w-[74px]"></div>
 				</Platform>
 
-				<Tabs bind:currentTab {showSettings} />
+				{#if isLoaded}
+					<Tabs bind:currentTab {showSettings} />
+				{/if}
 			</div>
 
 			{#if isLoaded}
@@ -105,17 +103,15 @@
 			<div
 				class="absolute top-0 right-0 h-full transition-all duration-200 px-2 flex items-center text-black bg-zinc-50 dark:bg-neutral-900 dark:text-white"
 			>
-				{#if !showSettings}
+				{#if !showSettings && isLoaded}
 					<div class="flex gap-1 items-center options no-drag">
-						<div class="flex items-center">
+						<div class="flex items-center hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-md transition-all">
 							<DiscordToggle />
 						</div>
-						<button class="flex items-center p-1" on:click={openSettings}>
-							<SettingsIcon size={16} />
-						</button>
+						<IconButton on:click={openSettings} icon={SettingsIcon}/>
 					</div>
 				{/if}
-				<Platform is="win32">
+				<Platform is="darwin">
 					<WindowControls />
 				</Platform>
 			</div>
@@ -126,7 +122,7 @@
 			in:fade={{ duration: 200, delay: 50 }}
 		>
 			{#if showSettings}
-				<Settings bind:showSettings {config}/>
+				<Settings bind:showSettings {config} {isDark} />
 			{/if}
 			{#if !isLoaded}
 				<Spinner />

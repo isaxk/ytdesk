@@ -5,9 +5,11 @@
 	import ThemeSelector from "./ThemeSelector.svelte";
 	import SettingsItem from "./SettingsItem.svelte";
 	import Switch from "./Switch.svelte";
+	import ColorPicker from "./ColorPicker.svelte";
 
 	export let showSettings;
 	export let config;
+	export let isDark;
 
 	const tabs = [
 		{
@@ -24,7 +26,7 @@
 		showSettings = false;
 		window.setTimeout(() => {
 			window.electron.ipcRenderer.send("close-settings");
-		}, 250);
+		}, 100);
 	}
 
 </script>
@@ -60,6 +62,7 @@
 			<Tabs.Content value="yt" class="flex-grow">
 				<SettingsItem label="Ad Blocking" requiredRestart><Switch key="ad-blocking" checked={config["ad-blocking"]}/></SettingsItem>
 				<SettingsItem label="Force Cinema Mode"><Switch key="force-cinema" checked={config["force-cinema"]}/></SettingsItem>
+				<SettingsItem label="Accent Color"><ColorPicker {isDark} key="yt-accent-color" hex={config["yt-accent-color"]}/></SettingsItem>
 			</Tabs.Content>
 		{/if}
 	</Tabs.Root>

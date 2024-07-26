@@ -3,6 +3,7 @@ import { join } from "path"
 import { electronApp, optimizer, is } from "@electron-toolkit/utils"
 import icon from "../../resources/icon.png?asset";
 import { factory } from 'electron-json-config';
+import { hexToCSSFilter } from 'hex-to-css-filter';
 
 import { ElectronBlocker, f } from "@cliqz/adblocker-electron";
 
@@ -15,6 +16,10 @@ function youtubeParser(url): string {
   const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
   const match = url.match(regExp);
   return (match && match[7].length == 11) ? match[7] : false;
+}
+
+function adjust(color, amount) {
+  return '#' + color.replace(/^#/, '').replace(/../g, color => ('0' + Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
 }
 
 async function createBlocker() {
@@ -209,7 +214,7 @@ function switchView(win: BrowserWindow, start: WebContentsView, end: WebContents
 
 
 app.whenReady().then(async () => {
-  if(!config.get("theme")) {
+  if (!config.get("theme")) {
     config.set("theme", "system");
   }
 
@@ -247,6 +252,41 @@ app.whenReady().then(async () => {
     }
   }
 
+  function urlIsGoogleAccountsDomain(url: URL): boolean {
+    // https://www.google.com/supported_domains
+    const supportedDomains = [".google.com", ".google.ad", ".google.ae", ".google.com.af", ".google.com.ag", ".google.al", ".google.am", ".google.co.ao", ".google.com.ar", ".google.as", ".google.at", ".google.com.au", ".google.az", ".google.ba", ".google.com.bd", ".google.be", ".google.bf", ".google.bg", ".google.com.bh", ".google.bi", ".google.bj", ".google.com.bn", ".google.com.bo", ".google.com.br", ".google.bs", ".google.bt", ".google.co.bw", ".google.by", ".google.com.bz", ".google.ca", ".google.cd", ".google.cf", ".google.cg", ".google.ch", ".google.ci", ".google.co.ck", ".google.cl", ".google.cm", ".google.cn", ".google.com.co", ".google.co.cr", ".google.com.cu", ".google.cv", ".google.com.cy", ".google.cz", ".google.de", ".google.dj", ".google.dk", ".google.dm", ".google.com.do", ".google.dz", ".google.com.ec", ".google.ee", ".google.com.eg", ".google.es", ".google.com.et", ".google.fi", ".google.com.fj", ".google.fm", ".google.fr", ".google.ga", ".google.ge", ".google.gg", ".google.com.gh", ".google.com.gi", ".google.gl", ".google.gm", ".google.gr", ".google.com.gt", ".google.gy", ".google.com.hk", ".google.hn", ".google.hr", ".google.ht", ".google.hu", ".google.co.id", ".google.ie", ".google.co.il", ".google.im", ".google.co.in", ".google.iq", ".google.is", ".google.it", ".google.je", ".google.com.jm", ".google.jo", ".google.co.jp", ".google.co.ke", ".google.com.kh", ".google.ki", ".google.kg", ".google.co.kr", ".google.com.kw", ".google.kz", ".google.la", ".google.com.lb", ".google.li", ".google.lk", ".google.co.ls", ".google.lt", ".google.lu", ".google.lv", ".google.com.ly", ".google.co.ma", ".google.md", ".google.me", ".google.mg", ".google.mk", ".google.ml", ".google.com.mm", ".google.mn", ".google.com.mt", ".google.mu", ".google.mv", ".google.mw", ".google.com.mx", ".google.com.my", ".google.co.mz", ".google.com.na", ".google.com.ng", ".google.com.ni", ".google.ne", ".google.nl", ".google.no", ".google.com.np", ".google.nr", ".google.nu", ".google.co.nz", ".google.com.om", ".google.com.pa", ".google.com.pe", ".google.com.pg", ".google.com.ph", ".google.com.pk", ".google.pl", ".google.pn", ".google.com.pr", ".google.ps", ".google.pt", ".google.com.py", ".google.com.qa", ".google.ro", ".google.ru", ".google.rw", ".google.com.sa", ".google.com.sb", ".google.sc", ".google.se", ".google.com.sg", ".google.sh", ".google.si", ".google.sk", ".google.com.sl", ".google.sn", ".google.so", ".google.sm", ".google.sr", ".google.st", ".google.com.sv", ".google.td", ".google.tg", ".google.co.th", ".google.com.tj", ".google.tl", ".google.tm", ".google.tn", ".google.to", ".google.com.tr", ".google.tt", ".google.com.tw", ".google.co.tz", ".google.com.ua", ".google.co.ug", ".google.co.uk", ".google.com.uy", ".google.co.uz", ".google.com.vc", ".google.co.ve", ".google.co.vi", ".google.com.vn", ".google.vu", ".google.ws", ".google.rs", ".google.co.za", ".google.co.zm", ".google.co.zw", ".google.cat"];
+    const domain = url.hostname.split("accounts")[1];
+    if (supportedDomains.includes(domain)) return true;
+    return false;
+  }
+
+  function isPreventedNavOrRedirect(url: URL): boolean {
+    return (
+      url.hostname !== "consent.youtube.com" &&
+      url.hostname !== "accounts.youtube.com" &&
+      url.hostname !== "music.youtube.com" &&
+      !(
+        (url.hostname === "www.youtube.com" || url.hostname === "youtube.com")
+      ) &&
+      !urlIsGoogleAccountsDomain(url)
+    );
+  }
+
+  function handleNavigate(event, reqUrl) {
+    let url = new URL(reqUrl);
+    if (isPreventedNavOrRedirect(url)) {
+      event.preventDefault();
+      shell.openExternal(reqUrl);
+    }
+  }
+
+  function windowOpenHandler(url): { action: string } {
+    shell.openExternal(url);
+    return {
+      action: "deny"
+    }
+  }
+
   let isFullscreen = false;
   let isLoaded = false;
   let isSettings = false;
@@ -263,17 +303,21 @@ app.whenReady().then(async () => {
   });
 
   ytFrame.webContents.on("did-finish-load", () => {
-    if(isLoaded) return;
+    updateAccentColor();
+    if (isLoaded) return;
     isLoaded = true;
     mainWindow.webContents.send("loaded");
     setBoundsOnActive({ x: 0, y: isFullscreen ? 0 : headerHeight, width: mainWindow.getBounds().width, height: mainWindow.getBounds().height - (isFullscreen ? 0 : headerHeight) });
   })
+
 
   ytFrame.webContents.on("leave-html-full-screen", () => {
     isFullscreen = false;
     setBoundsOnActive({ x: 0, y: headerHeight, width: mainWindow.getBounds().width, height: mainWindow.getBounds().height - headerHeight });
     mainWindow.webContents.send("leave-full-screen");
   })
+
+  ytFrame.webContents.toggleDevTools();
 
   musicFrame.webContents.on("enter-html-full-screen", () => {
     isFullscreen = true;
@@ -309,6 +353,23 @@ app.whenReady().then(async () => {
     const url = musicFrame.webContents.getURL();
     mainWindow.webContents.send("navigate", url);
   })
+
+  ytFrame.webContents.on("will-navigate", handleNavigate);
+  musicFrame.webContents.on("will-navigate", handleNavigate);
+
+  ytFrame.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return {
+      action: "deny"
+    }
+  });
+  musicFrame.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return {
+      action: "deny"
+    }
+  });
+
   ipcMain.on('ytmView:videoDataChanged', (_, data) => {
     ytmData = data;
     discordRPC.setMusic(data);
@@ -340,6 +401,7 @@ app.whenReady().then(async () => {
   });
   ipcMain.on("close-settings", () => {
     isSettings = false;
+    updateAccentColor();
     setBoundsOnActive({ x: 0, y: headerHeight, width: mainWindow.getBounds().width, height: mainWindow.getBounds().height - headerHeight });
   })
 
@@ -380,18 +442,81 @@ app.whenReady().then(async () => {
     discordRPC.disable();
   });
 
+  ipcMain.handle("is-loaded", () => {
+    return isLoaded;
+  })
+
+  function updateAccentColor() {
+    let color = config.get("yt-accent-color");
+    if (!color) return;
+    const logoColor = adjust(color, -40);
+    const chipColor = adjust(color, -80);
+    const progressBarColor = adjust(color, -100);
+    ytFrame.webContents.insertCSS(
+      `
+        #text > a {
+          color: ${color} !important;
+        }
+        #text.ytd-channel-name {
+        color: ${color} !important;
+        }
+          
+        path[d="M27.9727 3.12324C27.6435 1.89323 26.6768 0.926623 25.4468 0.597366C23.2197 2.24288e-07 14.285 0 14.285 0C14.285 0 5.35042 2.24288e-07 3.12323 0.597366C1.89323 0.926623 0.926623 1.89323 0.597366 3.12324C2.24288e-07 5.35042 0 10 0 10C0 10 2.24288e-07 14.6496 0.597366 16.8768C0.926623 18.1068 1.89323 19.0734 3.12323 19.4026C5.35042 20 14.285 20 14.285 20C14.285 20 23.2197 20 25.4468 19.4026C26.6768 19.0734 27.6435 18.1068 27.9727 16.8768C28.5701 14.6496 28.5701 10 28.5701 10C28.5701 10 28.5677 5.35042 27.9727 3.12324Z"] {
+          fill: ${logoColor} !important;
+        }
+        .html5-video-player:not(.ytp-color-party) .html5-play-progress,
+	      .html5-video-player:not(.ytp-color-party) .ytp-play-progress,
+	      .progress-bar-played.ytd-progress-bar-line, .PlayerControlsProgressBarHostProgressBarPlayed /* on shorts*/
+	      {
+		      background: ${progressBarColor} !important;
+	      }
+        .html5-scrubber-button:hover, .ytp-chrome-controls .ytp-button[aria-pressed]::after, .ytp-scrubber-button:hover, .html5-video-player:not(.ytp-color-party) .ytp-swatch-background-color, .ytp-swatch-background-color-secondary,
+	      .PlayerControlsProgressBarHostProgressBarPlayheadDot /*shorts*/
+	      {
+		      background: ${progressBarColor} !important;
+        }
+        .ytp-menuitem[aria-checked=true] .ytp-menuitem-toggle-checkbox {
+          background: ${logoColor} !important;
+        }
+        #author-comment-badge > ytd-author-comment-badge-renderer {
+
+          background: transparent !important;
+          padding-left: 0px transparent;
+        }
+          #text.yt-chip-cloud-chip-renderer {
+          filter: brightness(70%);
+          font-weight: normal !important;
+        }
+        yt-chip-cloud-chip-renderer[chip-style=STYLE_HOME_FILTER] {
+          background: transparent !important;
+        }
+        yt-chip-cloud-chip-renderer[chip-style=STYLE_HOME_FILTER][selected] {
+          background-color: #ffffff80 !important;
+          color: ${logoColor} !important;
+        }
+        yt-chip-cloud-chip-renderer[chip-style=STYLE_HOME_FILTER][selected] #text {
+          font-weight: bold !important;
+        }
+        
+      `
+    )
+  }
+
   ipcMain.on("update-config", (_, key, value) => {
     config.set(key, value);
     mainWindow.webContents.send("refresh-config");
     ytFrame.webContents.send("force-cinema", config.get("force-cinema"));
-    if(key==="force-cinema") {
-      ytFrame.webContents.reload();
+    switch (key) {
+      case "force-cinema":
+        ytFrame.webContents.reload();
+        break;
     }
   })
 
   ipcMain.handle("get-all-config", () => {
     return config.all();
-  })
+  });
+
 
 
 

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { ArrowLeft, RotateCw } from "lucide-svelte";
+	import IconButton from "./IconButton.svelte";
 
 	export let currentTab:string;
 
@@ -12,17 +13,7 @@
 	}
 </script>
 
-<div class="flex items-center no-drag text-black dark:text-white">
-	<button
-		on:click={back}
-		class="hover:bg-zinc-200 dark:hover:bg-zinc-800 p-2 rounded-md transition-all"
-	>
-		<ArrowLeft size="16" />
-	</button>
-	<button
-		on:click={refresh}
-		class="hover:bg-zinc-200 dark:hover:bg-zinc-800 p-2 rounded-md transition-all"
-	>
-		<RotateCw size="14" />
-	</button>
+<div class="flex items-center no-drag gap-1 text-black dark:text-white">
+	<IconButton on:click={back} icon={ArrowLeft}/>
+	<IconButton on:click={refresh} icon={RotateCw} iconSize={14}/>
 </div>
