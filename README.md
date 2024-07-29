@@ -8,6 +8,7 @@ Youtube & Youtube Music Supercharged
 - Ad blocking
 - Force Cinema Mode
 
+---
 
 ## Project Setup
 
