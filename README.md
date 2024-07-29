@@ -2,7 +2,7 @@
 ### [ytdesk.isaxk.com](https://ytdesk.isaxk.com)
 Youtube & Youtube Music Supercharged
 
-### Features
+## Features
 - Discord Rich Presence
 - Accent Colour Theming
 - Ad blocking
