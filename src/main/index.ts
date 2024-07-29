@@ -115,6 +115,7 @@ async function createDiscordClient(this: any, clientId: string) {
       const dataJSON = await dataRes.json();
       const data = (await dataJSON.items[0]).snippet;
       client.user?.setActivity({
+        type: 3, // Watching...
         details: data.title,
         state: data.channelTitle,
         largeImageKey: data.thumbnails.high.url,
@@ -131,6 +132,7 @@ async function createDiscordClient(this: any, clientId: string) {
       if (disabled || !client.isConnected) return;
       if (!data) { setBrowsing(); return; }
       client.user?.setActivity({
+        type: 2, // Listening...
         details: data.title,
         state: data.author,
         largeImageKey: data.thumbnail.thumbnails[3].url,
