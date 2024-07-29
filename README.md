@@ -1,6 +1,12 @@
 # ytdesk
+### [ytdesk.isaxk.com](https://ytdesk.isaxk.com)
+Youtube & Youtube Music Supercharged
 
-An Electron application with Svelte and TypeScript
+### Features
+- Discord Rich Presence
+- Accent Colour Theming
+- Ad blocking
+- Force Cinema Mode
 
 
 ## Project Setup
