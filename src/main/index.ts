@@ -10,6 +10,9 @@ import { Client } from "@xhayper/discord-rpc";
 
 // require('update-electron-app')();
 
+let dev = false;
+dev = !app.isPackaged;
+
 const config = factory();
 
 function youtubeParser(url): string {
@@ -36,7 +39,7 @@ async function createBlocker() {
 const ytAPIKEY = "AIzaSyBaUEQ9dnGj3XVMpqZOVn5H6A66JtKfsJ8";
 
 function createYoutubeFrame() {
-  const ytframe = new WebContentsView(
+  const frame = new WebContentsView(
     {
       webPreferences: {
         sandbox: true,
@@ -45,23 +48,28 @@ function createYoutubeFrame() {
       }
     }
   );
-  ytframe.webContents.loadURL("https://www.youtube.com");
+  frame.webContents.loadURL("https://www.youtube.com");
+  frame.setBounds({x:0,y:headerHeight,width:mainWindow.getBounds().width,height:mainWindow.getBounds().height});
+  frame.setVisible(false);
 
-  return ytframe;
+  return frame;
 }
 
 function createMusicFrame() {
 
-  const musicframe = new WebContentsView({
+  const frame = new WebContentsView({
     webPreferences: {
       sandbox: true,
       contextIsolation: true,
       preload: join(__dirname, "../preload/musicview.js")
     },
   })
-  musicframe.webContents.loadURL("https://music.youtube.com");
+  frame.webContents.loadURL("https://music.youtube.com");
+  frame.setBounds({x:0,y:headerHeight,width:mainWindow.getBounds().width,height:mainWindow.getBounds().height});
+  frame.setVisible(false);
 
-  return musicframe;
+
+  return frame;
 }
 
 async function createDiscordClient(this: any, clientId: string) {
@@ -206,8 +214,8 @@ function handleWindowControl(event, message) {
 }
 
 function switchView(win: BrowserWindow, start: WebContentsView, end: WebContentsView) {
-  start.setBounds({ x: 0, y: 0, width: 0, height: 0 });
-  end.setBounds({ x: 0, y: headerHeight, width: win.getBounds().width, height: win.getBounds().height - headerHeight });
+  start.setVisible(false);
+  end.setVisible(true);
   return end;
 }
 
@@ -327,6 +335,10 @@ app.whenReady().then(async () => {
   Menu.setApplicationMenu(menu);
 
   mainWindow = await createWindow();
+  if(dev) {
+    mainWindow.webContents.toggleDevTools();
+  }
+  
 
   ytFrame = await createYoutubeFrame();
   musicFrame = await createMusicFrame();
@@ -380,8 +392,8 @@ app.whenReady().then(async () => {
   let isSettings = false;
 
   mainWindow.on("resize", () => {
-    if (isSettings) return;
-    setBoundsOnActive({ x: 0, y: isFullscreen ? 0 : headerHeight, width: mainWindow.getBounds().width, height: mainWindow.getBounds().height - (isFullscreen ? 0 : headerHeight) });
+    ytFrame.setBounds({ x: 0, y: isFullscreen ? 0 : headerHeight, width: mainWindow.getBounds().width, height: mainWindow.getBounds().height - (isFullscreen ? 0 : headerHeight) });
+    musicFrame.setBounds({ x: 0, y: isFullscreen ? 0 : headerHeight, width: mainWindow.getBounds().width, height: mainWindow.getBounds().height - (isFullscreen ? 0 : headerHeight) });
   })
 
   ytFrame.webContents.on("enter-html-full-screen", () => {
@@ -395,7 +407,14 @@ app.whenReady().then(async () => {
     if (isLoaded) return;
     isLoaded = true;
     mainWindow.webContents.send("loaded");
-    setBoundsOnActive({ x: 0, y: isFullscreen ? 0 : headerHeight, width: mainWindow.getBounds().width, height: mainWindow.getBounds().height - (isFullscreen ? 0 : headerHeight) });
+    if(config.get("default-tab")==="music") {
+      musicFrame.setVisible(true);
+      mainWindow.webContents.send("nav", "music");
+    }
+    else {
+      ytFrame.setVisible(true);
+    }
+    
   })
 
 
@@ -444,6 +463,13 @@ app.whenReady().then(async () => {
   ytFrame.webContents.on("will-navigate", handleNavigate);
   musicFrame.webContents.on("will-navigate", handleNavigate);
 
+  mainWindow.webContents.setWindowOpenHandler(({url}) => {
+    shell.openExternal(url);
+    return {
+      action: "deny",
+    }
+  })
+
   ytFrame.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
     return {
@@ -479,17 +505,15 @@ app.whenReady().then(async () => {
 
   ipcMain.on("open-settings", () => {
     isSettings = true;
-    if (activeFrame === ytFrame) {
-      ytFrame.setBounds({ x: 0, y: 0, width: 0, height: 0 });
-    }
-    else {
-      musicFrame.setBounds({ x: 0, y: 0, width: 0, height: 0 });
-    }
+    activeFrame.setVisible(false);
   });
   ipcMain.on("close-settings", () => {
     isSettings = false;
     updateAccentColor();
-    setBoundsOnActive({ x: 0, y: headerHeight, width: mainWindow.getBounds().width, height: mainWindow.getBounds().height - headerHeight });
+    activeFrame.setVisible(true);
+  })
+  ipcMain.handle("app-v", ()=>{
+    return app.getVersion();
   })
 
 
@@ -589,6 +613,14 @@ app.whenReady().then(async () => {
     )
   }
 
+  const loginSettings = app.getLoginItemSettings();
+  if(loginSettings.openAtLogin) {
+    config.set("open-at-login", true);
+  }
+  else {
+    config.set("open-at-login", false);
+  }
+
   ipcMain.on("update-config", async (_, key, value) => {
     config.set(key, value);
     mainWindow.webContents.send("refresh-config");
@@ -607,6 +639,18 @@ app.whenReady().then(async () => {
         }
         activeFrame.webContents.reload();
         break;
+      case "open-at-login":
+        if(value===true) {
+          app.setLoginItemSettings({
+            openAtLogin: true,
+          });
+        }
+        else {
+          app.setLoginItemSettings({
+            openAtLogin: false,
+          })
+        }
+      break;
     }
   })
 

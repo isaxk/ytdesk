@@ -18,7 +18,7 @@
     position="responsive-x"
     textInputModes={["hex"]}
 	--cp-bg-color={isDark?"#262626":"white"}
-	--cp-border-color="transparent"
+	--cp-border-color={isDark?"#3f3f46":"#D4D4D8"}
 	--cp-text-color={isDark?"white":"black"}
 	--cp-input-color={isDark?"#171717":"#f4f4f5"}
 	--slider-width="15px"
