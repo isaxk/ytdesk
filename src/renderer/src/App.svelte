@@ -115,7 +115,7 @@
 						<IconButton on:click={openSettings} icon={SettingsIcon}/>
 					</div>
 				{/if}
-				<Platform is="win32">
+				<Platform is="darwin">
 					<WindowControls />
 				</Platform>
 			</div>
