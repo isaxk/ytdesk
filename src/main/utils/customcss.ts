@@ -5,13 +5,13 @@ function adjust(color, amount) {
 	return '#' + color.replace(/^#/, '').replace(/../g, color => ('0' + Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
 }
 
-export function updateAccentColor(ytFrame:WebContentsView, color?:string) {
-    if (!color) return;
-    const logoColor = adjust(color, -40);
-    const chipColor = adjust(color, -80);
-    const progressBarColor = adjust(color, -100);
-    ytFrame.webContents.insertCSS(
-        `
+export function updateAccentColor(ytFrame: WebContentsView, color?: string) {
+	if (!color) return;
+	const logoColor = adjust(color, -40);
+	const chipColor = adjust(color, -80);
+	const progressBarColor = adjust(color, -100);
+	ytFrame.webContents.insertCSS(
+		`
     #text > a {
       color: ${color} !important;
     }
@@ -57,5 +57,5 @@ export function updateAccentColor(ytFrame:WebContentsView, color?:string) {
     }
     
   `
-    )
+	)
 }
