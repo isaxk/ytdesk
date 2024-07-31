@@ -34,5 +34,5 @@ $ pnpm build:win
 $ pnpm build:mac
 
 # For Linux
-$ pnpm run build:linux
+$ pnpm build:linux
 ```
