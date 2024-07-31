@@ -12,27 +12,29 @@ Youtube & Youtube Music Supercharged
 
 ## Project Setup
 
+**Note**: This project uses pnpm.
+
 ### Install
 
 ```bash
-$ npm install
+$ pnpm install
 ```
 
 ### Development
 
 ```bash
-$ npm run dev
+$ pnpm dev
 ```
 
 ### Build
 
 ```bash
 # For windows
-$ npm run build:win
+$ pnpm build:win
 
 # For macOS
-$ npm run build:mac
+$ pnpm build:mac
 
 # For Linux
-$ npm run build:linux
+$ pnpm run build:linux
 ```
