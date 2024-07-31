@@ -1,3 +1,6 @@
+// Credits to Youtube Music Desktop App. https://github.com/ytmdesktop
+
+
 // IMPORTANT NOTES ABOUT THIS FILE
 //
 // This file contains all logic related to interacting with YTM itself and works under the assumption of a trusted environment and data.

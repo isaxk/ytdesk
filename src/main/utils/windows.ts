@@ -12,7 +12,7 @@ function createYoutubeFrame(mainWindow, headerHeight) {
 			webPreferences: {
 				sandbox: true,
 				contextIsolation: true,
-				preload: join(__dirname, "../preload/ytview.js")
+				preload: join(__dirname, "../preload/yt.js")
 			}
 		}
 	);
@@ -29,7 +29,7 @@ function createMusicFrame(mainWindow, headerHeight) {
 		webPreferences: {
 			sandbox: true,
 			contextIsolation: true,
-			preload: join(__dirname, "../preload/musicview.js")
+			preload: join(__dirname, "../preload/music.js")
 		},
 	})
 	frame.webContents.loadURL("https://music.youtube.com");
@@ -53,7 +53,7 @@ function createMainWindow() {
 		frame: false,
 		...(process.platform === "linux" ? { icon } : {}),
 		webPreferences: {
-			preload: join(__dirname, "../preload/mainWindow.js"),
+			preload: join(__dirname, "../preload/main.js"),
 			sandbox: false,
 		}
 	})

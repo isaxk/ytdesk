@@ -10,9 +10,9 @@ export default defineConfig({
     build: {
       rollupOptions: {
         input: {
-          mainWindow: resolve(__dirname, 'src/preload/index.ts'),
-          musicview: resolve(__dirname, 'src/preload/ytmview/preload.ts'),
-          ytview: resolve(__dirname, 'src/preload/yt/preload.ts'),
+          main: resolve(__dirname, 'src/preload/main/index.ts'),
+          music: resolve(__dirname, 'src/preload/music/index.ts'),
+          yt: resolve(__dirname, 'src/preload/yt/index.ts'),
         },
       }
     },
