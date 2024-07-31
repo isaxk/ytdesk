@@ -1,7 +1,8 @@
 import { is } from "@electron-toolkit/utils";
-import { BrowserWindow, ipcMain, nativeTheme, WebContentsView } from "electron";
+import { BrowserWindow, HandlerDetails, ipcMain, nativeTheme, shell, WebContentsView, WindowOpenHandlerResponse } from "electron";
 import { join } from "path";
 import icon from "../../../resources/icon.png?asset";
+import { handleNavigate } from "./navigation";
 
 
 
@@ -40,7 +41,7 @@ function createMusicFrame(mainWindow, headerHeight) {
 }
 
 function createMainWindow() {
-    const win = new BrowserWindow({
+	const win = new BrowserWindow({
 		width: 1200,
 		height: 800,
 		minWidth: 640,
@@ -68,15 +69,25 @@ function createMainWindow() {
 	return win;
 }
 
-let activeFrame:WebContentsView;
+let activeFrame: WebContentsView;
+let mainWindow: BrowserWindow;
+let ytFrame: WebContentsView;
+let musicFrame: WebContentsView;
 
-export function createWindows(headerHeight) {
-    const mainWindow = createMainWindow();
-    const ytFrame = createYoutubeFrame(mainWindow, headerHeight);
-    const musicFrame = createMusicFrame(mainWindow, headerHeight);
+let isFullscreen: boolean = false;
+let isSettings: boolean = false;
 
-	function switchView(to:WebContentsView) {
-		if(to===ytFrame) {
+export function getWindows(headerHeight) {
+
+	if (!mainWindow || !ytFrame || !musicFrame) {
+		mainWindow = createMainWindow();
+		ytFrame = createYoutubeFrame(mainWindow, headerHeight);
+		musicFrame = createMusicFrame(mainWindow, headerHeight);
+	}
+
+
+	function switchView(to: WebContentsView) {
+		if (to === ytFrame) {
 			musicFrame.setVisible(false);
 			ytFrame.setVisible(true);
 		}
@@ -100,18 +111,83 @@ export function createWindows(headerHeight) {
 	function getActiveFrame() {
 		return activeFrame;
 	}
- 
-    return {
-        mainWindow,
-        ytFrame,
-        musicFrame,
+
+	function enterFullScreen() {
+		isFullscreen = true;
+		setBoundsOnActive({ x: 0, y: 0, width: mainWindow.getBounds().width, height: mainWindow.getBounds().height });
+		mainWindow.webContents.send("enter-full-screen");
+	}
+
+	function leaveFullScreen() {
+		isFullscreen = false;
+		setBoundsOnActive({ x: 0, y: headerHeight, width: mainWindow.getBounds().width, height: mainWindow.getBounds().height - headerHeight });
+		mainWindow.webContents.send("leave-full-screen");
+	}
+
+	function updateWindowSize() {
+		const newSize = { x: 0, y: isFullscreen ? 0 : headerHeight, width: mainWindow.getBounds().width, height: mainWindow.getBounds().height - (isFullscreen ? 0 : headerHeight) };
+		ytFrame.setBounds(newSize);
+		musicFrame.setBounds(newSize);
+	}
+
+	function openSettings() {
+		isSettings = true;
+		mainWindow.webContents.send("open-settings");
+		getActiveFrame().setVisible(false);
+	}
+
+	function closeSettings() {
+		isSettings = false;
+		mainWindow.webContents.send("close-settings");
+		getActiveFrame().setVisible(true);
+	}
+
+	function windowOpenHandler(details: HandlerDetails): WindowOpenHandlerResponse {
+		shell.openExternal(details.url);
+		return {
+			action: "deny",
+		}
+	}
+
+	ipcMain.on("open-settings", openSettings);
+	ipcMain.on("close-settings", closeSettings);
+
+	ytFrame.webContents.on("enter-html-full-screen", enterFullScreen);
+	ytFrame.webContents.on("leave-html-full-screen", leaveFullScreen);
+	musicFrame.webContents.on("enter-html-full-screen", enterFullScreen);
+	musicFrame.webContents.on("leave-html-full-screen", leaveFullScreen);
+
+	ytFrame.webContents.on("will-navigate", handleNavigate);
+	musicFrame.webContents.on("will-navigate", handleNavigate);
+
+	mainWindow.webContents.setWindowOpenHandler(windowOpenHandler)
+	ytFrame.webContents.setWindowOpenHandler(windowOpenHandler);
+	musicFrame.webContents.setWindowOpenHandler(windowOpenHandler);
+
+	mainWindow.on("resize", updateWindowSize);
+
+	ipcMain.on("page-action", (_, data) => {
+		if (data.action === "back") {
+			getActiveFrame().webContents.goBack();
+		}
+		else if (data.action === "refresh") {
+			getActiveFrame().webContents.reload();
+		}
+	});
+
+	return {
+		mainWindow,
+		ytFrame,
+		musicFrame,
 		switchView,
 		setBoundsOnActive,
-		getActiveFrame
-    }
+		getActiveFrame,
+		openSettings,
+		closeSettings,
+	}
 }
 
-export function handleWindowControl(event, message) {
+function handleWindowControl(event, message) {
 	const webContents = event.sender;
 	const win = BrowserWindow.fromWebContents(webContents);
 
@@ -131,3 +207,4 @@ export function handleWindowControl(event, message) {
 };
 
 ipcMain.on("window-control", handleWindowControl);
+

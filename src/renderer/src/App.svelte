@@ -59,10 +59,8 @@
 		isLoaded = await window.electron.ipcRenderer.invoke("is-loaded");
 	});
 
-	function openSettings() {
+	function sendOpenSettings() {
 		window.electron.ipcRenderer.send("open-settings");
-		showSettings = true;
-		isLoaded = true;
 	}
 
 	window.electron.ipcRenderer.on("loaded", () => {
@@ -70,7 +68,11 @@
 	});
 
 	window.electron.ipcRenderer.on("open-settings", () => {
-		openSettings();
+		showSettings = true;
+	});
+
+	window.electron.ipcRenderer.on("close-settings", () => {
+		showSettings = false;
 	});
 </script>
 
@@ -112,10 +114,10 @@
 						<div class="flex items-center hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-md transition-all">
 							<DiscordToggle />
 						</div>
-						<IconButton on:click={openSettings} icon={SettingsIcon}/>
+						<IconButton on:click={sendOpenSettings} icon={SettingsIcon}/>
 					</div>
 				{/if}
-				<Platform is="darwin">
+				<Platform is="win32">
 					<WindowControls />
 				</Platform>
 			</div>

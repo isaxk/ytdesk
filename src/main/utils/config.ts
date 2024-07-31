@@ -36,3 +36,12 @@ export async function handleConfigUpdate(key, value, blocker, mainWindow, ytFram
             break;
     }
 }
+
+const loginSettings = app.getLoginItemSettings();
+	
+if (loginSettings.openAtLogin) {
+    config.set("open-at-login", true);
+}
+else {
+    config.set("open-at-login", false);
+}

@@ -4,7 +4,7 @@ import { factory } from 'electron-json-config';
 import { ElectronBlocker } from "@cliqz/adblocker-electron";
 
 import { createDiscordClient } from "./utils/discord";
-import { createWindows } from "./utils/windows";
+import { getWindows } from "./utils/windows";
 import { createMenuTemplate } from "./utils/menu";
 import { handleNavigate } from "./utils/navigation";
 import { createBlocker } from "./utils/blocker";
@@ -38,17 +38,13 @@ app.whenReady().then(async () => {
 		optimizer.watchWindowShortcuts(window)
 	})
 
-	const { mainWindow, ytFrame, musicFrame, switchView, setBoundsOnActive, getActiveFrame } = createWindows(headerHeight);
-	mainWindow.on("resize", () => {
-		ytFrame.setBounds({ x: 0, y: isFullscreen ? 0 : headerHeight, width: mainWindow.getBounds().width, height: mainWindow.getBounds().height - (isFullscreen ? 0 : headerHeight) });
-		musicFrame.setBounds({ x: 0, y: isFullscreen ? 0 : headerHeight, width: mainWindow.getBounds().width, height: mainWindow.getBounds().height - (isFullscreen ? 0 : headerHeight) });
-	})
+	const { mainWindow, ytFrame, musicFrame, switchView, setBoundsOnActive, getActiveFrame } = getWindows(headerHeight);
 	const discordRPC = await createDiscordClient("1265008196876242944");
+
 	if (config.get("ad-blocking") === true) {
 		blocker = await createBlocker();
 		blocker.enableBlockingInSession(session.defaultSession);
-
-}
+	}
 
 	const template = createMenuTemplate(mainWindow, {
 		settings: () => {
@@ -89,46 +85,19 @@ app.whenReady().then(async () => {
 	mainWindow.contentView.addChildView(musicFrame);
 
 
-
-
 	ytFrame.webContents.on("did-finish-load", () => {
 		updateAccentColor(ytFrame, config.get("yt-accent-color"));
 		if (isLoaded) return;
 		isLoaded = true;
 		mainWindow.webContents.send("loaded");
 		if (config.get("default-tab") === "music") {
-			musicFrame.setVisible(true);
 			mainWindow.webContents.send("nav", "music");
+			musicFrame.setVisible(true);
 		}
 		else {
 			ytFrame.setVisible(true);
 		}
 	})
-
-
-	ytFrame.webContents.on("enter-html-full-screen", () => {
-		isFullscreen = true;
-		setBoundsOnActive({ x: 0, y: 0, width: mainWindow.getBounds().width, height: mainWindow.getBounds().height });
-		mainWindow.webContents.send("enter-full-screen");
-	});
-
-	ytFrame.webContents.on("leave-html-full-screen", () => {
-		isFullscreen = false;
-		setBoundsOnActive({ x: 0, y: headerHeight, width: mainWindow.getBounds().width, height: mainWindow.getBounds().height - headerHeight });
-		mainWindow.webContents.send("leave-full-screen");
-	});
-
-	musicFrame.webContents.on("enter-html-full-screen", () => {
-		isFullscreen = true;
-		setBoundsOnActive({ x: 0, y: 0, width: mainWindow.getBounds().width, height: mainWindow.getBounds().height });
-		mainWindow.webContents.send("enter-full-screen");
-	});
-
-	musicFrame.webContents.on("leave-html-full-screen", () => {
-		isFullscreen = false;
-		setBoundsOnActive({ x: 0, y: headerHeight, width: mainWindow.getBounds().width, height: mainWindow.getBounds().height - headerHeight });
-		mainWindow.webContents.send("leave-full-screen");
-	});
 
 
 	let ytmState = 0;
@@ -153,49 +122,11 @@ app.whenReady().then(async () => {
 		mainWindow.webContents.send("navigate", url);
 	})
 
-	ytFrame.webContents.on("will-navigate", handleNavigate);
-	musicFrame.webContents.on("will-navigate", handleNavigate);
 
-	mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-		shell.openExternal(url);
-		return {
-			action: "deny",
-		}
-	})
-
-	ytFrame.webContents.setWindowOpenHandler(({ url }) => {
-		shell.openExternal(url);
-		return {
-			action: "deny"
-		}
-	});
-	musicFrame.webContents.setWindowOpenHandler(({ url }) => {
-		shell.openExternal(url);
-		return {
-			action: "deny"
-		}
-	});
-
-	ipcMain.on('ytmView:videoDataChanged', (_, data) => {
-		ytmData = data;
-		discordRPC.setMusic(data);
-	})
 	ipcMain.on('ytmView:videoStateChanged', (_, state) => {
 		ytmState = state;
 	})
 
-	ipcMain.on("enable-rpc", () => {
-		discordRPC.enable();
-		if (getActiveFrame() === ytFrame) {
-			discordRPC.setVideo(ytFrame.webContents.getURL())
-		}
-		else {
-			discordRPC.setMusic(ytmData);
-		}
-	});
-	ipcMain.on("disable-rpc", () => {
-		discordRPC.disable();
-	})
 
 	ipcMain.on("open-settings", () => {
 		isSettings = true;
@@ -205,10 +136,10 @@ app.whenReady().then(async () => {
 		isSettings = false;
 		updateAccentColor(ytFrame, config.get("yt-accent-color"));
 		getActiveFrame().setVisible(true);
-	})
+	});
 	ipcMain.handle("app-v", () => {
 		return app.getVersion();
-	})
+	});
 
 	ipcMain.on("nav", (_, to) => {
 		if (!mainWindow.isDestroyed()) {
@@ -221,8 +152,6 @@ app.whenReady().then(async () => {
 				if (isLoaded) {
 					switchView(ytFrame);
 				}
-
-
 			}
 			else if (to === "music") {
 				discordRPC.setMusic(ytmData);
@@ -232,39 +161,17 @@ app.whenReady().then(async () => {
 			}
 		}
 	});
-	ipcMain.on("page-action", (_, data) => {
-		if (data.action === "back") {
-			getActiveFrame().webContents.goBack();
-		}
-		else if (data.action === "refresh") {
-			getActiveFrame().webContents.reload();
-		}
-	});
-
-	app.on("before-quit", () => {
-		discordRPC.disable();
-	});
 
 	ipcMain.handle("is-loaded", () => {
 		return isLoaded;
-	})
-
-	const loginSettings = app.getLoginItemSettings();
-	if (loginSettings.openAtLogin) {
-		config.set("open-at-login", true);
-	}
-	else {
-		config.set("open-at-login", false);
-	}
-
+	});
 	ipcMain.on("update-config", async (_, key, value) => {
 		handleConfigUpdate(key, value, blocker, mainWindow, ytFrame, getActiveFrame());
-	})
-
-	ipcMain.handle("get-all-config", () => {
-		return config.all();
 	});
-
+	ipcMain.handle("get-all-config", ()=>{return config.all()});
+	app.on("before-quit", () => {
+		discordRPC.disable();
+	});
 })
 
 app.on("window-all-closed", () => {
