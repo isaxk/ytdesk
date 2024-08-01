@@ -12,4 +12,3 @@
 		@apply overflow-x-hidden;
 	}
 </style>
-ƒ

@@ -4,75 +4,79 @@
 </script>
 
 <div
-	class="pt-0 h-[110vh] relative overflow-hidden bg-gradient-to-tr from-slate-950 to-emerald-950"
+	class="relative h-[110vh] overflow-hidden bg-gradient-to-tr from-slate-950 to-emerald-950 pt-0"
 >
-	<div class="flex flex-col items-center justify-center w-screen-xl m-auto h-full overflow-hidden">
+	<div class="w-screen-xl m-auto flex h-full flex-col items-center justify-center overflow-hidden">
 		<img
 			src="/trendingpage.png"
 			alt="Trending Page"
-			class="w-[120%] -ml-40 xl:ml-0 2xl:w-2/3 max-w-[1100px] self-start glide-left"
+			class="glide-left -ml-40 w-[120%] max-w-[1100px] self-start xl:ml-0 2xl:w-2/3"
 		/>
-		<div class="text-center flex flex-col gap-2 mb-5">
-			<div class="text-6xl font-black flex gap-2 items-center">
+		<div class="mb-5 flex flex-col gap-2 text-center">
+			<div class="flex items-center gap-2 text-6xl font-black">
 				<img src="/icon.png" alt="Icon" class="w-[80px] translate-y-0.5" /> YT Desk
 			</div>
 			<div class="text-lg font-medium">Videos and music in one place.</div>
 			<div class="flex justify-center">
 				<a
 					href="https://www.github.com/isaxk/ytdesk/releases/latest"
-					class="p-2 px-8 w-max rounded-md bg-zinc-50 bg-opacity-20 mt-3">Download</a
+					class="mt-3 w-max rounded-md bg-zinc-50 bg-opacity-20 p-2 px-8">Download</a
 				>
 			</div>
 		</div>
 		<img
 			src="/musicpage.png"
 			alt="Music Page"
-			class="w-[120%] -mr-40 xl:mr-0 2xl:w-2/3 max-w-[1100px] self-end glide-right"
+			class="glide-right -mr-40 w-[120%] max-w-[1100px] self-end xl:mr-0 2xl:w-2/3"
 		/>
 	</div>
 	<div
-		class="absolute left-0 bottom-0 w-full h-[30vh] bg-gradient-to-b from-transparent via-zinc-900 via-90% to-zinc-900"
+		class="absolute bottom-0 left-0 h-[30vh] w-full bg-gradient-to-b from-transparent via-zinc-900 via-90% to-zinc-900"
 	></div>
 </div>
 <div
-	class="pt-24 px-5 pb-10 flex flex-col md:flex-row justify-center max-w-screen-lg m-auto gap-10 overflox-x-hidden"
+	class="overflox-x-hidden m-auto flex max-w-screen-lg flex-col justify-center gap-10 px-5 pb-10 pt-24 md:flex-row"
 >
-	<div class="w-full md:w-[40%] flex flex-col gap-5 px-5 pt-5 text-center md:text-left">
+	<div class="flex w-full flex-col gap-5 px-5 pt-5 text-center md:w-1/2 md:text-left">
 		<div class="text-4xl font-bold">Discord Rich<br />Presence</div>
 		<div class="text-xl">Let your friends know what you're watching or listening to.</div>
 	</div>
-	<div class="relative md:w-[60%] pl-0 md:pl-10 scale-75 md:scale-100 overflox-x-hidden">
+	<div
+		class="overflox-x-hidden relative mx-auto w-full max-w-[500px] pl-0 md:ml-0 md:w-1/2 md:max-w-full md:scale-100"
+	>
 		<img
 			src="/3nightsrpc.png"
 			alt="Discord Rich Presensce"
-			class="w-72 rounded-lg brightness-75 -ml-10 md:ml-0"
+			class="w-72 rounded-lg brightness-75 md:mx-0"
 		/>
-		<img
-			src="/mrbeastrpc.png"
-			alt="Discord Rich Presensce"
-			class="w-72 absolute top-10 left-32 md:left-60 rounded-lg big-shadow"
-		/>
+		<div class="absolute left-0 top-10 flex w-full justify-end">
+			<img src="/mrbeastrpc.png" alt="Discord Rich Presensce" class="big-shadow w-72 rounded-lg" />
+		</div>
 		<div
-			class="absolute -bottom-20 left-0 md:w-[120%] h-60 bg-gradient-to-b from-transparent to-zinc-900"
+			class="absolute -bottom-20 left-0 h-60 bg-gradient-to-b from-transparent to-zinc-900 md:w-[120%]"
 		></div>
 	</div>
 </div>
 <div
-	class="pt-20 px-5 pb-52 flex flex-col-reverse md:flex-row justify-center max-w-screen-lg gap-10 m-auto"
+	class="m-auto flex max-w-screen-lg flex-col-reverse justify-center gap-10 px-5 pb-52 pt-20 md:flex-row"
 >
 	<ChangingColours />
-	<div class="md:w-[40%] flex flex-col gap-5 pt-5 text-center md:text-left">
+	<div class="flex flex-col gap-5 pt-5 text-center md:w-1/2 md:text-left">
 		<div class="text-4xl font-bold">Choose your<br />color</div>
 		<div class="text-xl">Give your watching experience a little dash of personality.</div>
 	</div>
 </div>
-<div class="pt-52 px-16 pb-20 flex flex-col gap-10 justify-center max-w-screen-lg m-auto">
-	<div class="text-4xl font-bold text-center border-b-2 border-zinc-600 pb-5">And more...</div>
+<div class="m-auto flex max-w-screen-lg flex-col justify-center gap-10 px-16 pb-20 pt-52">
+	<div class="border-b-2 border-zinc-600 pb-5 text-center text-4xl font-bold">And more...</div>
 	<div class="grid md:grid-cols-3">
 		<FeatureGridItem title="Ad blocking" description="Uninterupted watching and listening" />
 		<FeatureGridItem title="Auto theatre mode" description="Use theatre mode everytime." />
 		<FeatureGridItem title="Easy Access" description="Jump into music or watching with ease." />
 	</div>
+</div>
+<div class="m-auto flex max-w-screen-lg items-center justify-end gap-4 px-16 py-10">
+	<div>&copy; <a href="https://www.isaxk.com" class="hover:underline">isaxk.com</a></div>
+	<a href="https://www.github.com/isaxk/github" class="hover:underline">Project on GitHub</a>
 </div>
 
 <style lang="postcss">

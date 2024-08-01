@@ -23,12 +23,12 @@
 	});
 </script>
 
-<div class="relative md:w-[60%]">
+<div class="relative md:w-1/2">
 	{#key activeIndex}
 		<img
 			src="/theming/{list[activeIndex]}.png"
 			alt="Themed client"
-			class="absolute w-full top-0 right-0"
+			class="absolute right-0 top-0 w-full"
 			transition:fade
 		/>
 	{/key}
