@@ -1,8 +1,14 @@
-import { WebContentsView } from "electron";
-
+import { WebContentsView } from 'electron';
 
 function adjust(color, amount) {
-	return '#' + color.replace(/^#/, '').replace(/../g, color => ('0' + Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
+	return (
+		'#' +
+		color
+			.replace(/^#/, '')
+			.replace(/../g, (color) =>
+				('0' + Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2)
+			)
+	);
 }
 
 export function updateAccentColor(ytFrame: WebContentsView, color?: string) {
@@ -57,5 +63,5 @@ export function updateAccentColor(ytFrame: WebContentsView, color?: string) {
     }
     
   `
-	)
+	);
 }

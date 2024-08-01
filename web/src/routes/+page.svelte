@@ -1,6 +1,6 @@
 <script>
-	import ChangingColours from "./ChangingColours.svelte";
-	import FeatureGridItem from "./FeatureGridItem.svelte";
+	import ChangingColours from './ChangingColours.svelte';
+	import FeatureGridItem from './FeatureGridItem.svelte';
 </script>
 
 <div
@@ -20,8 +20,7 @@
 			<div class="flex justify-center">
 				<a
 					href="https://www.github.com/isaxk/ytdesk/releases/latest"
-					class="p-2 px-8 w-max rounded-md bg-zinc-50 bg-opacity-20 mt-3"
-					>Download</a
+					class="p-2 px-8 w-max rounded-md bg-zinc-50 bg-opacity-20 mt-3">Download</a
 				>
 			</div>
 		</div>
@@ -40,9 +39,7 @@
 >
 	<div class="w-full md:w-[40%] flex flex-col gap-5 px-5 pt-5 text-center md:text-left">
 		<div class="text-4xl font-bold">Discord Rich<br />Presence</div>
-		<div class="text-xl">
-			Let your friends know what you're watching or listening to.
-		</div>
+		<div class="text-xl">Let your friends know what you're watching or listening to.</div>
 	</div>
 	<div class="relative md:w-[60%] pl-0 md:pl-10 scale-75 md:scale-100 overflox-x-hidden">
 		<img
@@ -66,30 +63,15 @@
 	<ChangingColours />
 	<div class="md:w-[40%] flex flex-col gap-5 pt-5 text-center md:text-left">
 		<div class="text-4xl font-bold">Choose your<br />color</div>
-		<div class="text-xl">
-			Give your watching experience a little dash of personality.
-		</div>
+		<div class="text-xl">Give your watching experience a little dash of personality.</div>
 	</div>
 </div>
-<div
-	class="pt-52 px-16 pb-20 flex flex-col gap-10 justify-center max-w-screen-lg m-auto"
->
-	<div class="text-4xl font-bold text-center border-b-2 border-zinc-600 pb-5">
-		And more...
-	</div>
+<div class="pt-52 px-16 pb-20 flex flex-col gap-10 justify-center max-w-screen-lg m-auto">
+	<div class="text-4xl font-bold text-center border-b-2 border-zinc-600 pb-5">And more...</div>
 	<div class="grid md:grid-cols-3">
-		<FeatureGridItem
-			title="Ad blocking"
-			description="Uninterupted watching and listening"
-		/>
-		<FeatureGridItem
-			title="Auto theatre mode"
-			description="Use theatre mode everytime."
-		/>
-		<FeatureGridItem
-			title="Easy Access"
-			description="Jump into music or watching with ease."
-		/>
+		<FeatureGridItem title="Ad blocking" description="Uninterupted watching and listening" />
+		<FeatureGridItem title="Auto theatre mode" description="Use theatre mode everytime." />
+		<FeatureGridItem title="Easy Access" description="Jump into music or watching with ease." />
 	</div>
 </div>
 

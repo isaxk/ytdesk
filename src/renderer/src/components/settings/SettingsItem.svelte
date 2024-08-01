@@ -3,7 +3,7 @@
 	export let requiredRestart: boolean = false;
 </script>
 
-<div class="flex w-full items-center h-14 gap-6">
+<div class="flex h-14 w-full items-center gap-6">
 	<div class="flex-grow">
 		<div class="text-lg">{label}:</div>
 		{#if requiredRestart}
