@@ -40,3 +40,4 @@ jobs:
             dist/ytdesk-x64-${{ github.ref_name }}-setup.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
