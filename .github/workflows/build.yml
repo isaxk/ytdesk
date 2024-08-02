@@ -33,7 +33,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            dist/ytdesk-0.2.4.dmg
-            dist/ytdesk-0.2.4-setup.exe
+            dist/ytdesk-${{ github.ref_name }}.dmg
+            dist/ytdesk-${{ github.ref_name }}-setup.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
