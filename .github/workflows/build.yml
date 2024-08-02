@@ -4,11 +4,6 @@ on: push
 
 jobs:
   release:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [macos-latest, windows-latest]
 
     steps:
       - name: Check out Git repository
@@ -28,10 +23,9 @@ jobs:
         run: pnpm install
 
       - name: Build electron
-        run: pnpm build && pnpm pack --${{ matrix.os.name }}
+        run: pnpm build && pnpm pack --mw
 
-      - name: Upload artifacts (${{ matrix.arch }})
+      - name: Upload artifacts 
         uses: actions/upload-artifact@v4
         with:
-          name: dist-${{ matrix.os.name }}-${{ matrix.arch }}
           path: /dist
