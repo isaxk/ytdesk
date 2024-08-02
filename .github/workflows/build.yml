@@ -1,31 +1,35 @@
-name: Build/release
-
-on: push
-
+# name of your github action
+name: Electron Release
+# this will help you specify where to run 
+on:
+  push:
+    branches:
+      -main
+# this is where the magic happens, each job happens in parallel btw
 jobs:
-  release:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
-
+  build_on_mac:
+    runs-on: macOS-latest
     steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v1
-
-      - name: Install Node.js, NPM and Yarn
-        uses: actions/setup-node@v1
-        with:
-          node-version: 20.12.2
-
-      - name: Build/release Electron app
-        uses: samuelmeuli/action-electron-builder@v1
-        with:
-          # GitHub token, automatically provided to the action
-          # (No need to define this secret in the repo settings)
-          github_token: ${{ secrets.github_token }}
-
-          # If the commit is tagged with a version (e.g. "v1.0.0"),
-          # release the app after building
-          release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    - uses: actions/checkout@master
+      with:
+        ref: electron
+    - uses: actions/setup-node@master
+      with:
+        node-version: 20.12.2
+    - name: run pnpm
+      run: pnpm install
+    - name: build electron
+      run: pnpm build:mac
+  build_on_win:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@master
+      with:
+        ref: feature/github-actions        
+    - uses: actions/setup-node@master
+      with:
+        node-version: 20.12.2
+    - name: run pnpm
+      run: pnpm install
+    - name: build elecron
+      run: pnpm build:win
