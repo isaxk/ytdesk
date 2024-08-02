@@ -27,7 +27,7 @@ jobs:
         run: pnpm install
 
       - name: Build electron
-        run: pnpm build:win && pnpm build:mac
+        run: pnpm build && pnpm pack
 
       - name: Build electron
         run: ls dist
