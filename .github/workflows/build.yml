@@ -3,8 +3,6 @@ name: Electron Release
 # this will help you specify where to run 
 on:
   push:
-    branches:
-      -main
 # this is where the magic happens, each job happens in parallel btw
 jobs:
   build_on_mac:
