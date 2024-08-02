@@ -10,7 +10,7 @@
 	"homepage": "https://electron-vite.org",
 	"scripts": {
 		"format": "prettier --plugin prettier-plugin-svelte --write .",
-		"lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
+		"lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts, .mts --fix",
 		"typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
 		"svelte-check": "svelte-check --tsconfig ./tsconfig.json",
 		"typecheck": "npm run typecheck:node && npm run svelte-check",
@@ -20,7 +20,7 @@
 		"postinstall": "electron-builder install-app-deps",
 		"build:unpack": "npm run build && electron-builder --dir",
 		"build:win": "npm run build && electron-builder --win --x64",
-		"build:mac": "npm run build && electron-builder --mac",
+		"build:mac": "npm run build && electron-builder --mac --universal",
 		"build:linux": "npm run build && electron-builder --linux"
 	},
 	"dependencies": {

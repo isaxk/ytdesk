@@ -14,8 +14,8 @@ asarUnpack:
 win:
   executableName: ytdesk
 nsis:
-  oneClick: false
-  artifactName: ${name}-v${version}-setup.${ext}
+  oneClick: true
+  artifactName: ${name}-x64-v${version}-setup.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
@@ -28,7 +28,7 @@ mac:
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
   notarize: false
 dmg:
-  artifactName: ${name}-v${version}.${ext}
+  artifactName: ${name}-universal-v${version}.${ext}
 linux:
   target:
     - AppImage
