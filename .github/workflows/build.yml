@@ -14,7 +14,8 @@ jobs:
         with:
           node-version: '20.12.2'
       - uses: pnpm/action-setup@v4
-
+        with:
+          version: 9
       - run: pnpm install
       - run: pnpm run build:mac
       
@@ -26,5 +27,7 @@ jobs:
         with:
           node-version: '20.12.2'
       - uses: pnpm/action-setup@v4
+        with:
+          version: 9
       - run: pnpm install
       - run: pnpm run build:win
