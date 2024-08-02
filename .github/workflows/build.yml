@@ -25,7 +25,7 @@ jobs:
         run: pnpm install
 
       - name: Build electron
-        run: pnpm build && pnpm pack -mw
+        run: pnpm build && pnpm pack
 
       - name: Upload artifacts 
         uses: actions/upload-artifact@v4
