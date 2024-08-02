@@ -1,9 +1,7 @@
-
-
 {
 	"name": "ytdesk",
 	"productName": "YT Desk",
-	"version": "0.2.2", 
+	"version": "0.2.2",
 	"description": "An Electron application with Svelte and TypeScript",
 	"main": "./out/main/index.js",
 	"author": "example.com",
@@ -17,12 +15,12 @@
 		"start": "electron-vite preview",
 		"dev": "electron-vite dev",
 		"build": "npm run typecheck && electron-vite build",
-		"postinstall": "electron-builder install-app-deps",
 		"pack:win": "electron-builder --win --x64",
 		"pack:mac": " electron-builder --mac --universal",
+		"postinstall": "electron-builder install-app-deps",
 		"build:unpack": "npm run build && electron-builder --dir",
 		"build:win": "npm run build && npm run pack",
-		"build:mac": "npm run build && npm run pack"
+		"build:mac": "npm run build && npm run pack:mac"
 	},
 	"dependencies": {
 		"@cliqz/adblocker-electron": "^1.30.0",
@@ -32,6 +30,7 @@
 		"@melloware/coloris": "^0.24.0",
 		"@xhayper/discord-rpc": "^1.1.2",
 		"bits-ui": "^0.21.12",
+		"discord-api-types": "^0.37.93",
 		"discord-rich-presence": "^0.0.8",
 		"electron-json-config": "^2.0.0-beta",
 		"electron-store": "^10.0.0",

@@ -18,16 +18,12 @@ jobs:
         with:
           node-version: 20.12.2
           
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
           
       - name: Install Dependencies
-        run: pnpm install
+        run: npm install
 
       - name: Build electron
-        run: pnpm build && pnpm pack:win && pnpm pack:mac
+        run: npm build && npm pack:win && npm pack:mac
 
       - name: Build electron
         run: ls dist
