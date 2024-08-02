@@ -4,6 +4,8 @@ on: push
 
 jobs:
   release:
+    
+    runs-on: macos-latest
 
     steps:
       - name: Check out Git repository
