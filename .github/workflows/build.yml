@@ -18,14 +18,20 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 20.12.2
-
-      - name: Build/release Electron app
-        uses: samuelmeuli/action-electron-builder@v1
+          
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
         with:
-          # GitHub token, automatically provided to the action
-          # (No need to define this secret in the repo settings)
-          github_token: ${{ secrets.github_token }}
+          version: 9
+          
+      - name: Install Dependencies
+        run: pnpm install
 
-          # If the commit is tagged with a version (e.g. "v1.0.0"),
-          # release the app after building
-          release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+      - name: Build electron
+        run: pnpm build:${{matrix.os.name}}
+
+      - name: Upload artifacts (${{ matrix.arch }})
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.os.name }}-${{ matrix.arch }}
+          path: /dist
