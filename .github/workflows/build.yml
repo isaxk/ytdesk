@@ -8,25 +8,21 @@ jobs:
   build_on_mac:
     runs-on: macOS-latest
     steps:
-    - uses: actions/checkout@v4
-      with:
-        ref: electron
-    - uses: actions/setup-node@v4
-      with:
-        node-version: 20.12.2
-    - name: run pnpm
-      run: pnpm install
-    - name: build electron
-      run: pnpm build:mac
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.12.2'
+      - run: pnpm install
+      - run: pnpm run build:mac
   build_on_win:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v4
-      with:
-        ref: feature/github-actions        
-    - uses: actions/setup-node@v4
-      with:
-        node-version: 20.12.2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.12.2'
+      - run: pnpm install
+      - run: pnpm run build:win
     - name: run pnpm
       run: pnpm install
     - name: build elecron
