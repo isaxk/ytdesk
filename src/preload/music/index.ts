@@ -941,6 +941,7 @@ window.addEventListener('load', async () => {
 								// @ts-ignore: Unreachable code error
 								document
 									.querySelector('ytmusic-app-layout>ytmusic-player-bar')
+                  // @ts-ignore: Unreachable code error
 									.removeEventListener('transitionend', transitionEnd);
 							}
 						}
@@ -949,6 +950,7 @@ window.addEventListener('load', async () => {
 				// @ts-ignore: Unreachable code error
 				document
 					.querySelector('ytmusic-app-layout>ytmusic-player-bar')
+          // @ts-ignore: Unreachable code error
 					.addEventListener('transitionend', transitionEnd);
 
 				document.dispatchEvent(
