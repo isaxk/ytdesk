@@ -28,7 +28,7 @@ jobs:
         run: pnpm install
 
       - name: Build electron
-        run: pnpm build:${{matrix.os.name}}
+        run: pnpm build
 
       - name: Upload artifacts (${{ matrix.arch }})
         uses: actions/upload-artifact@v4
