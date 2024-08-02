@@ -76,7 +76,7 @@
 </div>
 <div class="m-auto flex max-w-screen-lg items-center justify-end gap-4 px-16 py-10">
 	<div>&copy; <a href="https://www.isaxk.com" class="hover:underline">isaxk.com</a></div>
-	<a href="https://www.github.com/isaxk/github" class="hover:underline">Project on GitHub</a>
+	<a href="https://www.github.com/isaxk/ytdesk" class="hover:underline">Project on GitHub</a>
 </div>
 
 <style lang="postcss">
