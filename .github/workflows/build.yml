@@ -30,7 +30,11 @@ jobs:
       - name: Build electron
         run: ls dist
 
-      - name: Upload artifacts 
-        uses: actions/upload-artifact@v4
+      - name: Release with Notes
+        uses: softprops/action-gh-release@v1
         with:
-          path: dist
+          files: |
+            dist/ytdesk-0.2.4.dmg
+            dist/ytdesk-0.2.4-setup.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
