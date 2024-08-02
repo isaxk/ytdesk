@@ -18,6 +18,13 @@ jobs:
           version: 9
       - run: pnpm install
       - run: pnpm run build:mac
+      - uses: lucyio/upload-to-release@master
+        with:
+          name: isaxk/ytdesk
+          path: ./dist
+          action: unpublished
+          release_id: 0.x.x
+          release-repo: isaxk/ytdesk
       
   build_on_win:
     runs-on: windows-latest
@@ -31,3 +38,10 @@ jobs:
           version: 9
       - run: pnpm install
       - run: pnpm run build:win
+      - uses: lucyio/upload-to-release@master
+        with:
+          name: isaxk/ytdesk
+          path: ./dist
+          action: unpublished
+          release_id: 0.x.x
+          release-repo: isaxk/ytdesk
