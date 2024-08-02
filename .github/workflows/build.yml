@@ -6,6 +6,7 @@ on:
 # this is where the magic happens, each job happens in parallel btw
 jobs:
   build_on_mac:
+  
     runs-on: macOS-latest
     steps:
       - uses: actions/checkout@v4
@@ -14,6 +15,7 @@ jobs:
           node-version: '20.12.2'
       - run: pnpm install
       - run: pnpm run build:mac
+      
   build_on_win:
     runs-on: windows-latest
     steps:
@@ -23,7 +25,3 @@ jobs:
           node-version: '20.12.2'
       - run: pnpm install
       - run: pnpm run build:win
-    - name: run pnpm
-      run: pnpm install
-    - name: build elecron
-      run: pnpm build:win
