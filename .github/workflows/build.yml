@@ -1,47 +1,31 @@
-# name of your github action
-name: Electron Release
-# this will help you specify where to run 
-on:
-  push:
-# this is where the magic happens, each job happens in parallel btw
+name: Build/release
+
+on: push
+
 jobs:
-  build_on_mac:
-  
-    runs-on: macOS-latest
+  release:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Check out Git repository
+        uses: actions/checkout@v1
+
+      - name: Install Node.js, NPM and Yarn
+        uses: actions/setup-node@v1
         with:
-          node-version: '20.12.2'
-      - uses: pnpm/action-setup@v4
+          node-version: 20.12.2
+
+      - name: Build/release Electron app
+        uses: samuelmeuli/action-electron-builder@v1
         with:
-          version: 9
-      - run: pnpm install
-      - run: pnpm run build:mac
-      - uses: lucyio/upload-to-release@master
-        with:
-          name: isaxk/ytdesk
-          path: ./dist
-          action: unpublished
-          release_id: 0.x.x
-          release-repo: isaxk/ytdesk
-      
-  build_on_win:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20.12.2'
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-      - run: pnpm install
-      - run: pnpm run build:win
-      - uses: lucyio/upload-to-release@master
-        with:
-          name: isaxk/ytdesk
-          path: ./dist
-          action: unpublished
-          release_id: 0.x.x
-          release-repo: isaxk/ytdesk
+          # GitHub token, automatically provided to the action
+          # (No need to define this secret in the repo settings)
+          github_token: ${{ secrets.github_token }}
+
+          # If the commit is tagged with a version (e.g. "v1.0.0"),
+          # release the app after building
+          release: ${{ startsWith(github.ref, 'refs/tags/v') }}
