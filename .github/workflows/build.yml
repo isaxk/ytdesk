@@ -27,6 +27,9 @@ jobs:
       - name: Build electron
         run: pnpm build:win && pnpm build:mac
 
+      - name: Build electron
+        run: ls dist
+
       - name: Upload artifacts 
         uses: actions/upload-artifact@v4
         with:
