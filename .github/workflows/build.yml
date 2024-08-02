@@ -23,7 +23,7 @@ jobs:
         run: npm install
 
       - name: Build electron
-        run: npm build && npm pack:win && npm pack:mac
+        run: npm run build && npm run pack:win && npm run pack:mac
 
       - name: Build electron
         run: ls dist
