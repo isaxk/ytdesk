@@ -1,0 +1,38 @@
+name: Build/release
+
+on: 
+  push:
+    tags:
+      '*'
+
+jobs:
+  release:
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v1
+
+      - name: Install Node.js, NPM and Yarn
+        uses: actions/setup-node@v1
+        with:
+          node-version: 20.12.2
+          
+          
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build electron
+        run: npm run build && npm run pack:win && npm run pack:mac
+
+      - name: Build electron
+        run: ls dist
+
+      - name: Release with Notes
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/ytdesk-universal-${{ github.ref_name }}.dmg
+            dist/ytdesk-x64-${{ github.ref_name }}-setup.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
