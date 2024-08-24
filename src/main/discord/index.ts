@@ -8,6 +8,7 @@ const client = new Client({
   clientId: '1265008196876242944'
 })
 
+
 export function setVideo(id, title, author) {
   client.user?.setActivity({
     state: author,
@@ -32,8 +33,17 @@ export function clearActivity() {
   client.user?.clearActivity()
 }
 
-export function initDiscordClient() {
-  client.login()
+export function discordClient() {
+  client.login();
+
+  return {
+    setMusic,
+    setVideo,
+    clearActivity,
+    enable: () => {
+      return
+    }
+  }
 }
 
 ipcMain.on('ytView:videoDataChanged', (_, data) => {
@@ -46,5 +56,6 @@ ipcMain.on('ytView:videoDataChanged', (_, data) => {
 
 ipcMain.on('ytmView:videoDataChanged', (_, data) => {
   if (data === null || store.get('discord-rpc') === false) return
+  console.log(data.thumbnail.thumbnails);
   setMusic(data.title, data.author, data.thumbnail.thumbnails[0].url)
 })

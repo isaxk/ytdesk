@@ -163,7 +163,7 @@ export async function createTabManager(mainWindow: BrowserWindow) {
 			webPreferences: {
 				transparent: true,
 				preload: join(__dirname, '../preload/yt.mjs'),
-				sandbox: true,
+				sandbox: false,
 				contextIsolation: true,
 				allowRunningInsecureContent: true,
 				webSecurity: false
@@ -324,4 +324,10 @@ export async function createTabManager(mainWindow: BrowserWindow) {
 			loaded = true;
 		}
 	});
+
+	return {
+		getTabs: ()=>{
+			return tabs
+		}
+	}
 }
