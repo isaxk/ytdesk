@@ -1,7 +1,13 @@
 <script>
   // @ts-nocheck
 
-  import { CircleArrowOutDownRight, Cpu, Wifi, X } from "lucide-svelte";
+  import {
+    CircleArrowOutDownRight,
+    Cpu,
+    Keyboard,
+    Wifi,
+    X,
+  } from "lucide-svelte";
   import MacSpace from "../components/ui/MacSpace.svelte";
   import TabSidebarItem from "../components/settings/SidebarTab.svelte";
   import WindowControl from "../components/ui/WindowControl.svelte";
@@ -11,6 +17,7 @@
   import { activeView } from "../lib/stores";
   import { scale } from "svelte/transition";
   import Windowcontrol from "../components/ui/WindowControl.svelte";
+  import KeybindInput from "../components/settings/KeybindInput.svelte";
 
   let tabs = [
     {
@@ -69,10 +76,35 @@
         },
       ],
     },
+    {
+      value: "keybinds",
+      label: "Keybinds",
+      icon: Keyboard,
+      settings: [
+        {
+          label: "Toggle Playback",
+          key: "playback-bind",
+          type: "keybind",
+        },
+        {
+          label: "Next Song",
+          key: "next-bind",
+          type: "keybind",
+        },
+        {
+          label: "Previous Song",
+          key: "previous-bind",
+          type: "keybind",
+        },
+      ],
+    },
   ];
 </script>
 
-<div class="flex h-screen items-center justify-center"  in:scale={{start:1.05,duration:200}}>
+<div
+  class="flex h-screen items-center justify-center"
+  in:scale={{ start: 1.05, duration: 200 }}
+>
   <!-- <header
 		class="drag flex h-[40px] w-full items-center bg-zinc-100 pr-1 text-neutral-600 transition-all dark:bg-neutral-800 dark:text-neutral-400"
 	>
@@ -83,7 +115,7 @@
 
   <Tabs.Root asChild>
     <div class="min-h-96 max-w-screen-sm flex-grow">
-      <div class="mb-5 flex p-2 text-4xl font-semibold">
+      <div class="mb-5 flex p-2 pr-0 text-4xl font-semibold">
         <h1 class="flex-grow">Settings</h1>
         <IconButton
           icon={X}
@@ -105,10 +137,13 @@
             />
           {/each}
         </Tabs.List>
-        <div class="w-full py-4 pr-5">
+        <div class="w-full py-4">
           {#each tabs as tab}
             <Tabs.Content value={tab.value} class="flex-grow">
               <div class="flex flex-col gap-1">
+                {#if tab.value == "keybinds"}
+                  <div class="py-2 text-sm font-light text-neutral-800 dark:text-zinc-200">These keybinds work anywhere on your computer unless another app conflicts. (Supports music playback only)</div>
+                {/if}
                 {#if tab.settings}
                   {#each tab.settings as setting}
                     <SettingsItem {...setting} />
@@ -123,7 +158,6 @@
   </Tabs.Root>
 </div>
 
-<div class="fixed right-0 top-0 p-1 px-2">
-	<WindowControl />
+<div class="fixed flex left-0 top-0 h-10 w-full p-1 px-2 drag">
+  <WindowControl />
 </div>
-
