@@ -158,6 +158,6 @@
   </Tabs.Root>
 </div>
 
-<div class="fixed flex left-0 top-0 h-10 w-full p-1 px-2 drag">
+<div class="fixed flex justify-end left-0 top-0 h-10 w-full p-1 px-2 drag">
   <WindowControl />
 </div>

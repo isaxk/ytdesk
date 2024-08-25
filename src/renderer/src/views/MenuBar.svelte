@@ -7,9 +7,20 @@
   import Navigation from "../components/menubar/Navigation.svelte";
   import MacSpace from "../components/ui/MacSpace.svelte";
   import { activeView } from "../lib/stores";
+  import { onMount } from "svelte";
 
   export let active;
   export let tabs;
+
+  let miniplayerEnabled = false;
+
+  onMount(async () => {
+    miniplayerEnabled = (await window.api.getVideoData()) !== null;
+  });
+
+  window.api.onVideoDataChange((e) => {
+    miniplayerEnabled = e !== null;
+  });
 </script>
 
 <main class="flex h-screen flex-col bg-white transition-all dark:bg-[#121212]">
@@ -24,6 +35,7 @@
       <div class="flex">
         <IconButton icon={Plus} on:click={() => window.api.newTab()} />
         <IconButton
+          disabled={!miniplayerEnabled}
           icon={CircleArrowOutDownRight}
           on:click={() => {
             activeView.set("miniplayer");

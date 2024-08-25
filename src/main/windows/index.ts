@@ -54,6 +54,7 @@ app.on("before-quit", () => {
   isAppQuitting = true;
 });
 
+
 export function createMainWindowManager() {
 
   const mainWindow = new BrowserWindow({

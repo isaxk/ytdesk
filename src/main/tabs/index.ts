@@ -2,6 +2,7 @@ import { ElectronBlocker } from '@cliqz/adblocker-electron';
 import {
 	BrowserWindow,
 	ipcMain,
+	Menu,
 	shell,
 	WebContentsView,
 	WindowOpenHandlerResponse
@@ -202,6 +203,19 @@ export async function createTabManager(mainWindow: BrowserWindow) {
 			isFullscreen = false;
 			view.setBounds(bounds());
 		});
+
+		view.webContents.on('context-menu', (e) => {
+			const menu = Menu.buildFromTemplate([
+				{
+					label: "Enter Picture in Picture",
+					click: () => {
+						view.webContents.send("picture-in-picture");
+					}
+				}
+			])
+			e.preventDefault();
+			menu.popup();
+		})
 
 		return {
 			view,
