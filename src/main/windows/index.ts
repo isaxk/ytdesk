@@ -3,6 +3,7 @@ import { app, BrowserWindow, ipcMain, nativeTheme, shell } from "electron";
 import { join } from "path";
 import { sleep } from "../utils";
 import { factory } from "electron-json-config";
+import { getMusicData } from "../player";
 
 const store = factory();
 
@@ -119,7 +120,7 @@ export function createMainWindowManager() {
   });
 
   mainWindow.on("close", (e) => {
-    if (!isAppQuitting && process.platform === "darwin") {
+    if (!isAppQuitting && process.platform === "darwin" && getMusicData().state === 1) {
       e.preventDefault();
       mainWindow.hide();
     }
