@@ -56,8 +56,8 @@ app.on("before-quit", () => {
 export function createMainWindowManager() {
 
   const mainWindow = new BrowserWindow({
-    minWidth: 1200,
-    minHeight: 700,
+    minWidth: 800,
+    minHeight: 450,
     width: 1200,
     height: 700,
     titleBarStyle: "hiddenInset",
@@ -107,7 +107,7 @@ export function createMainWindowManager() {
 
   ipcMain.on("close-miniplayer", () => {
     miniPlayerOpen = true;
-    mainWindow.setMinimumSize(1200, 700);
+    mainWindow.setMinimumSize(800, 450);
     mainWindow.setMaximumSize(100000, 100000);
     mainWindow.setPosition(oldPos[0], oldPos[1], true);
     mainWindow.setSize(1000, 700, true);

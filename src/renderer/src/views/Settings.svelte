@@ -114,7 +114,7 @@
 	</header> -->
 
   <Tabs.Root asChild>
-    <div class="min-h-96 max-w-screen-sm flex-grow">
+    <div class=" max-w-screen-sm lg:max-w-screen-md flex-grow">
       <div class="mb-5 flex p-2 pr-0 text-4xl font-semibold">
         <h1 class="flex-grow">Settings</h1>
         <IconButton
