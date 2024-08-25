@@ -105,16 +105,17 @@ export function createMainWindowManager() {
     }
   });
 
-  ipcMain.on("close-miniplayer", () => {
+  ipcMain.on("close-miniplayer", async () => {
     miniPlayerOpen = true;
-    mainWindow.setMinimumSize(800, 450);
     mainWindow.setMaximumSize(100000, 100000);
     mainWindow.setPosition(oldPos[0], oldPos[1], true);
-    mainWindow.setSize(1000, 700, true);
+    mainWindow.setSize(1200, 700, true);
     mainWindow.setResizable(true);
     mainWindow.setMaximizable(true);
     mainWindow.setFullScreenable(true);
     mainWindow.setAlwaysOnTop(false);
+    await sleep(500);
+    mainWindow.setMinimumSize(800, 450);
   });
 
   mainWindow.on("close", (e) => {
