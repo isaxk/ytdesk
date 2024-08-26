@@ -14,6 +14,7 @@
   import ProgressBar from "../components/miniplayer/Progress.svelte";
   import { activeView } from "../lib/stores";
   import WindowControl from "../components/ui/WindowControl.svelte";
+  import Spinner from "../components/ui/Spinner.svelte";
   let videoData: any = null;
   let progress: number = 0;
   let state: number = 0;
@@ -170,22 +171,10 @@
       </div>
     {:else}
       <div
-        class="w-full flex-grow px-3 text-center text-xl font-bold text-zinc-300"
+        class="w-full flex-grow flex items-center justify-center"
       >
-        No music playing right now.
-        <div class="text-sm font-light">
-          (Miniplayer only supports YT Music playback)
+        <Spinner />
         </div>
-        <!-- svelte-ignore a11y-invalid-attribute -->
-        <a
-          href="javascript:void()"
-          on:click={() => {
-            activeView.set("topbar");
-            window.api.closeMiniplayer();
-          }}
-          class="no-drag text-sm font-medium underline">Close</a
-        >
-      </div>
     {/if}
   </div>
 </main>

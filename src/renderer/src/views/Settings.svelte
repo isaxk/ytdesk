@@ -114,7 +114,7 @@
 	</header> -->
 
   <Tabs.Root asChild>
-    <div class="min-h-96 max-w-screen-sm flex-grow">
+    <div class=" max-w-screen-sm lg:max-w-screen-md flex-grow">
       <div class="mb-5 flex p-2 pr-0 text-4xl font-semibold">
         <h1 class="flex-grow">Settings</h1>
         <IconButton
@@ -158,6 +158,6 @@
   </Tabs.Root>
 </div>
 
-<div class="fixed flex left-0 top-0 h-10 w-full p-1 px-2 drag">
+<div class="fixed flex justify-end left-0 top-0 h-10 w-full p-1 px-2 drag">
   <WindowControl />
 </div>

@@ -3,6 +3,7 @@ import { app, BrowserWindow, ipcMain, nativeTheme, shell } from "electron";
 import { join } from "path";
 import { sleep } from "../utils";
 import { factory } from "electron-json-config";
+import { getMusicData } from "../player";
 
 const store = factory();
 
@@ -53,11 +54,12 @@ app.on("before-quit", () => {
   isAppQuitting = true;
 });
 
+
 export function createMainWindowManager() {
 
   const mainWindow = new BrowserWindow({
-    minWidth: 1200,
-    minHeight: 700,
+    minWidth: 800,
+    minHeight: 450,
     width: 1200,
     height: 700,
     titleBarStyle: "hiddenInset",
@@ -105,20 +107,21 @@ export function createMainWindowManager() {
     }
   });
 
-  ipcMain.on("close-miniplayer", () => {
+  ipcMain.on("close-miniplayer", async () => {
     miniPlayerOpen = true;
-    mainWindow.setMinimumSize(1200, 700);
     mainWindow.setMaximumSize(100000, 100000);
     mainWindow.setPosition(oldPos[0], oldPos[1], true);
-    mainWindow.setSize(1000, 700, true);
+    mainWindow.setSize(1200, 700, true);
     mainWindow.setResizable(true);
     mainWindow.setMaximizable(true);
     mainWindow.setFullScreenable(true);
     mainWindow.setAlwaysOnTop(false);
+    await sleep(500);
+    mainWindow.setMinimumSize(800, 450);
   });
 
   mainWindow.on("close", (e) => {
-    if (!isAppQuitting && process.platform === "darwin") {
+    if (!isAppQuitting && process.platform === "darwin" && getMusicData().state === 1) {
       e.preventDefault();
       mainWindow.hide();
     }
