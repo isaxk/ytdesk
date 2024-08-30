@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { Select, Switch } from "bits-ui";
-  import { Check } from "lucide-svelte";
+  import Select from "./Select.svelte";
+  import { Switch, Tabs } from "bits-ui";
   import { onMount } from "svelte";
-  import { fly } from "svelte/transition";
   import KeybindInput from "./KeybindInput.svelte";
+  import { slide } from "svelte/transition";
 
   export let label: string;
   export let key: string;
@@ -13,8 +13,16 @@
 
   let value: any = null;
 
+  $: console.log(value);
+
   onMount(async () => {
-    value = await window.api.getConfig(key);
+    if (type === "css") {
+      value = JSON.parse(await window.api.getConfig(key));
+    } else {
+      value = await window.api.getConfig(key);
+    }
+
+    console.log(value);
   });
 
   function handleSelect(e) {
@@ -23,16 +31,17 @@
 
   function handleSwitch(e) {
     console.log(e);
+    value = e;
     window.api.setConfig(key, e);
   }
 
   function handleKeybind(e) {
-    console.log(e)
+    console.log(e);
     window.api.setConfig(key, e.detail);
   }
 </script>
 
-<div class="flex h-10 w-full items-center">
+<div class="flex h-max w-full items-center">
   <div class="flex-grow">
     {label}
     {#if restart}
@@ -43,36 +52,7 @@
   </div>
   {#if value !== null}
     {#if type === "select"}
-      <Select.Root
-        items={options}
-        selected={options.filter((o) => o.value == value)[0]}
-        onSelectedChange={handleSelect}
-      >
-        <Select.Trigger
-          class="w-52 rounded border bg-zinc-50 px-2 py-1 text-left dark:border-neutral-700 dark:bg-neutral-900"
-        >
-          <Select.Value placeholder="Choose..." />
-        </Select.Trigger>
-
-        <Select.Content
-          transition={fly}
-          transitionConfig={{ y: -10, duration: 200 }}
-          class="mt-2 flex flex-col rounded-md bg-zinc-50 text-black drop-shadow-md dark:bg-neutral-800 dark:text-white"
-        >
-          {#each options as option}
-            <Select.Item
-              value={option.value}
-              class="flex items-center rounded-md px-3 py-2 data-[highlighted]:dark:bg-neutral-700"
-            >
-              <div class="flex-grow">{option.label}</div>
-
-              <Select.ItemIndicator class="ml-auto" asChild={false}>
-                <Check size={16} />
-              </Select.ItemIndicator>
-            </Select.Item>
-          {/each}
-        </Select.Content>
-      </Select.Root>
+      <Select on:select={(e) => handleSelect(e.detail)} {options} {value} />
     {:else if type === "switch"}
       <Switch.Root
         id={key}
@@ -86,6 +66,99 @@
       </Switch.Root>
     {:else if type === "keybind"}
       <KeybindInput {value} on:change={handleKeybind} />
+    {:else if type === "css"}
+      <Switch.Root
+        id={key}
+        bind:checked={value.enabled}
+        onCheckedChange={(e) => {
+          window.api.setConfig(
+            key,
+            JSON.stringify({
+              ...value,
+              enabled: e
+            }),
+          );
+        }}
+        class="h-8 w-14 rounded-full bg-zinc-100 p-1 transition-all data-[state=checked]:bg-zinc-200 dark:bg-neutral-800 data-[state=checked]:dark:bg-neutral-700"
+      >
+        <Switch.Thumb
+          class="pointer-events-none block size-[24px] shrink-0 rounded-full bg-zinc-300 transition-all data-[state=checked]:translate-x-6 data-[state=unchecked]:translate-x-0 data-[state=checked]:bg-zinc-400 dark:bg-neutral-600 data-[state=checked]:dark:bg-neutral-500"
+        />
+      </Switch.Root>
     {/if}
   {/if}
 </div>
+{#if type === "css"}
+  {#if value !== null && value.enabled}
+    <div transition:slide={{ duration: 150 }}>
+      <Tabs.Root
+        asChild
+        bind:value={value.type}
+        onValueChange={() => {
+          setTimeout(() => {
+            window.api.setConfig(
+              key,
+              JSON.stringify({
+                ...value,
+              }),
+            );
+          }, 400);
+        }}
+      >
+        <div class="mb-4 rounded-md border dark:border-neutral-600">
+          <Tabs.List
+            class="flex w-full justify-stretch rounded bg-neutral-800 p-1 text-center"
+          >
+            <Tabs.Trigger
+              value="url"
+              class="w-full rounded p-1 data-[state=active]:bg-neutral-700"
+              >URL</Tabs.Trigger
+            >
+            <Tabs.Trigger
+              value="editor"
+              class="w-full rounded p-1 data-[state=active]:bg-neutral-700"
+              >Editor</Tabs.Trigger
+            >
+          </Tabs.List>
+          <div
+            class="{value.type == 'url'
+              ? 'h-10'
+              : 'h-40'} transition-all duration-300"
+          >
+            <Tabs.Content value="url">
+              <input
+                type="text"
+                placeholder="Paste the url to your css file."
+                bind:value={value.url}
+                class="w-full bg-transparent p-2 text-zinc-300 outline-none focus:text-current"
+                on:change={() => {
+                  window.api.setConfig(
+                    key,
+                    JSON.stringify({
+                      ...value,
+                    }),
+                  );
+                }}
+              />
+            </Tabs.Content>
+            <Tabs.Content value="editor" class="h-full">
+              <textarea
+                bind:value={value.css}
+                on:change={() => {
+                  window.api.setConfig(
+                    key,
+                    JSON.stringify({
+                      ...value,
+                    }),
+                  );
+                }}
+                class="h-full w-full bg-transparent p-2 font-mono outline-none text-sm"
+                placeholder="Paste or type css code here..."
+              ></textarea>
+            </Tabs.Content>
+          </div>
+        </div>
+      </Tabs.Root>
+    </div>
+  {/if}
+{/if}

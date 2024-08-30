@@ -3,7 +3,8 @@ import { app, BrowserWindow, ipcMain, nativeTheme, shell } from "electron";
 import { join } from "path";
 import { sleep } from "../utils";
 import { factory } from "electron-json-config";
-import { getMusicData } from "../player";
+import { playerState } from "../utils/types";
+import { playerManager } from "../player";
 
 const store = factory();
 
@@ -46,17 +47,14 @@ switch (store.get("theme")) {
 export type MainWindowManager = {
   window: BrowserWindow;
   applyTheme: Function;
-  miniPlayerOpen: Function 
-}
-
+  miniPlayerOpen: Function;
+};
 
 app.on("before-quit", () => {
   isAppQuitting = true;
 });
 
-
 export function createMainWindowManager() {
-
   const mainWindow = new BrowserWindow({
     minWidth: 800,
     minHeight: 450,
@@ -110,18 +108,21 @@ export function createMainWindowManager() {
   ipcMain.on("close-miniplayer", async () => {
     miniPlayerOpen = true;
     mainWindow.setMaximumSize(100000, 100000);
-    mainWindow.setPosition(oldPos[0], oldPos[1], true);
-    mainWindow.setSize(1200, 700, true);
+    mainWindow.setPosition(oldPos[0], oldPos[1], false);
+    mainWindow.setSize(1200, 700, false);
     mainWindow.setResizable(true);
     mainWindow.setMaximizable(true);
     mainWindow.setFullScreenable(true);
     mainWindow.setAlwaysOnTop(false);
-    await sleep(500);
     mainWindow.setMinimumSize(800, 450);
   });
 
   mainWindow.on("close", (e) => {
-    if (!isAppQuitting && process.platform === "darwin" && getMusicData().state === 1) {
+    if (
+      !isAppQuitting &&
+      process.platform === "darwin" &&
+      playerManager().getData().music.state === playerState.Playing
+    ) {
       e.preventDefault();
       mainWindow.hide();
     }
@@ -134,12 +135,12 @@ export function createMainWindowManager() {
   return {
     window: mainWindow,
     applyTheme: () => {
-      updateTheme(mainWindow)
+      updateTheme(mainWindow);
     },
     miniPlayerOpen: () => {
       return miniPlayerOpen;
-    }
-  }
+    },
+  };
 }
 
 function handleWindowAction(event, message) {

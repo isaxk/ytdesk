@@ -6,20 +6,15 @@
   import WindowControl from "../components/ui/WindowControl.svelte";
   import Navigation from "../components/menubar/Navigation.svelte";
   import MacSpace from "../components/ui/MacSpace.svelte";
-  import { activeView } from "../lib/stores";
-  import { onMount } from "svelte";
+  import { activeView, musicDataStore } from "../lib/stores";
 
   export let active;
   export let tabs;
 
-  let miniplayerEnabled = false;
+  $: miniplayerEnabled = $musicDataStore !== null;
 
-  onMount(async () => {
-    miniplayerEnabled = (await window.api.getVideoData()) !== null;
-  });
-
-  window.api.onVideoDataChange((e) => {
-    miniplayerEnabled = e !== null;
+  musicDataStore.subscribe((e) => {
+    console.log("musicDataStore", e);
   });
 </script>
 

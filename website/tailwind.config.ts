@@ -6,10 +6,10 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Inter", "sans-serif"]
-      }
-    }
+        sans: ["Inter", "sans-serif"],
+      },
+    },
   },
 
-  plugins: [require("@tailwindcss/typography")]
+  plugins: [require("@tailwindcss/typography")],
 } as Config;
