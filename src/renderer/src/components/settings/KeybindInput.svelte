@@ -30,7 +30,7 @@
   }
 
   function validateKey(event: KeyboardEvent) {
-    console.log(event.key)
+    console.log(event.key);
     if (event.key === " ") return "Space";
     if (event.code === "NumpadEnter") return "Enter";
     if (event.code === "NumpadAdd") return "NumAdd";
@@ -85,7 +85,7 @@
     if (event.shiftKey) newKeybind += "Shift+";
 
     newKeybind += validateKey(event);
-    newKeybind = newKeybind.replace('\u00a0', "Space");
+    newKeybind = newKeybind.replace("\u00a0", "Space");
     input.blur();
     console.log(newKeybind);
     value = newKeybind;
@@ -97,7 +97,13 @@
   type="text"
   bind:this={input}
   on:keydown={handleKeyDown}
-  class="w-52 rounded border bg-zinc-50 text-neutral-800 dark:text-zinc-200  px-2 py-1 text-left dark:border-neutral-700 dark:bg-neutral-900"
+  class="w-52 rounded border bg-zinc-50 text-neutral-800 dark:text-zinc-200 px-2 py-1 text-left dark:border-neutral-700 dark:bg-neutral-900"
   {value}
 />
-<IconButton icon={X} on:click={()=>{value="Unbound"; dispatch("change", "Unbound")}}/>
+<IconButton
+  icon={X}
+  on:click={() => {
+    value = "Unbound";
+    dispatch("change", "Unbound");
+  }}
+/>

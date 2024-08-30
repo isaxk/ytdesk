@@ -1,6 +1,6 @@
 @font-face {
-  font-family: 'Inter';
-  src: url('./Inter.ttf');
+  font-family: "Inter";
+  src: url("./Inter.ttf");
 }
 
 @tailwind base;
@@ -8,8 +8,8 @@
 @tailwind utilities;
 
 .drag {
-    -webkit-app-region: drag;
+  -webkit-app-region: drag;
 }
 .no-drag {
-    -webkit-app-region: no-drag;
+  -webkit-app-region: no-drag;
 }

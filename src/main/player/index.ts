@@ -1,12 +1,13 @@
 import { ipcMain } from "electron";
 import { MainWindowManager } from "../windows";
-import { discordClient } from "../discord";
+import { discordClient } from "../intergrations/discord";
 import { factory } from "electron-json-config";
+import { musicDataType, playerState, videoDataType } from "../utils/types";
 
-let musicData: null | any = null;
-let videoData: null | any = null;
-let videoState = 0;
-let volume = 0;
+let musicData: musicDataType | null = null;
+let videoData: videoDataType | null = null;
+let videoState: playerState = playerState.Unstarted;
+let volume: number = 0;
 
 const store = factory();
 
@@ -17,9 +18,13 @@ export function initPlayerEvents(mainWindowManager: MainWindowManager) {
     musicData = data;
     mainWindowManager.window.webContents.send("video-data-changed", data);
     if (data !== null && store.get("discord-rpc") === true) {
-      discord.setMusic(data.title, data.author, data.thumbnail.thumbnails[2]);
+      discord.setMusic(
+        data.title,
+        data.author,
+        data.thumbnail.thumbnails[2].url,
+      );
     } else {
-      discord.clearActivity();
+      discord.clear();
     }
   });
 
@@ -28,7 +33,7 @@ export function initPlayerEvents(mainWindowManager: MainWindowManager) {
     mainWindowManager.window.webContents.send("volume-changed", v);
   });
 
-  ipcMain.on("ytmView:videoStateChanged", (_, data) => {
+  ipcMain.on("ytmView:videoStateChanged", (_, data: playerState) => {
     videoState = data;
     console.log(data);
     mainWindowManager.window.webContents.send("video-state-changed", data);
@@ -47,28 +52,42 @@ export function initPlayerEvents(mainWindowManager: MainWindowManager) {
     return volume;
   });
 
-  ipcMain.on("ytmView:videoProgressChanged", (_, data) => {
+  ipcMain.on("ytmView:videoProgressChanged", (_, data: number) => {
     mainWindowManager.window.webContents.send("video-progress-changed", data);
   });
 
-  ipcMain.on("ytView:videoDataChanged", (_, data) => {
+  ipcMain.on("ytView:videoDataChanged", (_, data: videoDataType) => {
+    console.log(data);
     videoData = data;
-    if (data!==null && store.get("discord-rpc")===true) {
+    if (data !== null && store.get("discord-rpc") === true) {
       discord.setVideo(data.video_id, data.title, data.author);
     } else {
-      discord.clearActivity();
+      discord.clear();
     }
   });
 }
 
-export function getMusicData() {
+function getMusicData(): {
+  data: musicDataType | null;
+  state: playerState;
+} {
   return {
     data: musicData,
-    state: videoState
-  }
+    state: videoState,
+  };
 }
 
-
-export function getVideoData() {
+function getVideoData(): videoDataType | null {
   return videoData;
+}
+
+export function playerManager() {
+  return {
+    getData: () => {
+      return {
+        music: getMusicData(),
+        video: getVideoData(),
+      };
+    },
+  };
 }

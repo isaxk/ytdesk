@@ -5,13 +5,15 @@
     CircleArrowOutDownRight,
     Cpu,
     Keyboard,
+    Paintbrush,
+    Settings2,
     Wifi,
     X,
   } from "lucide-svelte";
   import MacSpace from "../components/ui/MacSpace.svelte";
   import TabSidebarItem from "../components/settings/SidebarTab.svelte";
   import WindowControl from "../components/ui/WindowControl.svelte";
-  import { Tabs } from "bits-ui";
+  import { ScrollArea, Tabs } from "bits-ui";
   import SettingsItem from "../components/settings/SettingItem.svelte";
   import IconButton from "../components/ui/IconButton.svelte";
   import { activeView } from "../lib/stores";
@@ -21,9 +23,9 @@
 
   let tabs = [
     {
-      value: "app",
-      label: "Application",
-      icon: Cpu,
+      value: "appearance",
+      label: "Appearance",
+      icon: Paintbrush,
       settings: [
         {
           label: "App Theme",
@@ -45,20 +47,35 @@
           ],
         },
         {
+          label: "YT Music Custom Theme",
+          key: "music-css",
+          type: "css",
+        },
+        {
+          label: "Youtube Custom Theme",
+          key: "yt-css",
+          type: "css",
+        },
+      ],
+    },
+    {
+      value: "app",
+      label: "Behaviour",
+      icon: Settings2,
+      settings: [
+        {
           label: "Youtube Studio Tab",
           key: "studio-tab",
           restart: true,
           type: "switch",
         },
-      ],
-    },
-    {
-      value: "miniplayer",
-      label: "Miniplayer",
-      icon: CircleArrowOutDownRight,
-      settings: [
         {
-          label: "Keep on top",
+          label: "Force cinema mode",
+          key: "force-cinema",
+          type: "switch",
+        },
+        {
+          label: "Keep miniplayer on top",
           key: "miniplayer-on-top",
           type: "switch",
         },
@@ -114,7 +131,7 @@
 	</header> -->
 
   <Tabs.Root asChild>
-    <div class=" max-w-screen-sm lg:max-w-screen-md flex-grow">
+    <div class="h-96 max-w-screen-sm flex-grow lg:max-w-screen-md">
       <div class="mb-5 flex p-2 pr-0 text-4xl font-semibold">
         <h1 class="flex-grow">Settings</h1>
         <IconButton
@@ -137,27 +154,34 @@
             />
           {/each}
         </Tabs.List>
-        <div class="w-full py-4">
-          {#each tabs as tab}
-            <Tabs.Content value={tab.value} class="flex-grow">
-              <div class="flex flex-col gap-1">
-                {#if tab.value == "keybinds"}
-                  <div class="py-2 text-sm font-light text-neutral-800 dark:text-zinc-200">These keybinds work anywhere on your computer unless another app conflicts. (Supports music playback only)</div>
-                {/if}
-                {#if tab.settings}
-                  {#each tab.settings as setting}
-                    <SettingsItem {...setting} />
-                  {/each}
-                {/if}
-              </div>
-            </Tabs.Content>
-          {/each}
-        </div>
+
+        {#each tabs as tab}
+          <Tabs.Content
+            value={tab.value}
+            class="w-full overflow-y-scroll h-96py-2 pr-4"
+          >
+            <div class="flex flex-col gap-3">
+              {#if tab.value == "keybinds"}
+                <div
+                  class="py-2 text-sm font-light text-neutral-800 dark:text-zinc-200 text-wrap"
+                >
+                  These keybinds work anywhere on your computer unless another
+                  app conflicts. (Supports music playback only)
+                </div>
+              {/if}
+              {#if tab.settings}
+                {#each tab.settings as setting}
+                  <SettingsItem {...setting} />
+                {/each}
+              {/if}
+            </div>
+          </Tabs.Content>
+        {/each}
       </div>
     </div>
   </Tabs.Root>
 </div>
 
-<div class="fixed flex justify-end left-0 top-0 h-10 w-full p-1 px-2 drag">
+<div class="drag fixed left-0 top-0 flex h-10 w-full justify-end p-1 px-2">
   <WindowControl />
 </div>

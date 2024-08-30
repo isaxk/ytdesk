@@ -1,16 +1,17 @@
+import { electronApp, optimizer } from "@electron-toolkit/utils";
 import {
   app,
   BrowserWindow,
+  globalShortcut,
   ipcMain,
   nativeTheme,
-  globalShortcut,
 } from "electron";
-import { electronApp, optimizer } from "@electron-toolkit/utils";
-import { createTabManager } from "./tabs";
 import { factory } from "electron-json-config";
-import { clearActivity, discordClient } from "./discord";
-import { createMainWindowManager, MainWindowManager } from "./windows";
+import { discordClient } from "./intergrations/discord";
 import { initPlayerEvents } from "./player";
+import { createTabManager } from "./tabs";
+import { createMainWindowManager, MainWindowManager } from "./windows";
+import { downloadCss, loadCss } from "./utils/customcss";
 
 const store = factory();
 
@@ -25,8 +26,8 @@ app.whenReady().then(async () => {
   mainWindowManager = createMainWindowManager();
   initPlayerEvents(mainWindowManager);
 
-
   let tabsManager = await createTabManager(mainWindowManager.window);
+  let discord = discordClient();
 
   mainWindowManager.window.webContents.on("did-finish-load", () => {
     tabsManager.getTabs()[0].view.webContents.on("did-finish-load", () => {
@@ -40,10 +41,23 @@ app.whenReady().then(async () => {
     "ad-blocking": false,
     "discord-rpc": false,
     "studio-tab": false,
+    "force-cinema": false,
     "miniplayer-on-top": false,
-    "playback-bind": "Ctrl+Shift+Space",
-    "next-bind": "Ctrl+Shift+Right",
-    "previous-bind": "Ctrl+Shift+Left",
+    "playback-bind": "Ctrl+Alt+Space",
+    "next-bind": "Ctrl+Alt+Right",
+    "previous-bind": "Ctrl+Alt+Left",
+    "music-css": JSON.stringify({
+      enabled: false,
+      type: "url",
+      url: "",
+      css: "",
+    }),
+    "yt-css": JSON.stringify({
+      enabled: false,
+      type: "url",
+      url: "",
+      css: "",
+    })
   };
 
   ipcMain.handle("get-config", (_, key: string) => {
@@ -54,60 +68,78 @@ app.whenReady().then(async () => {
     }
   });
 
+  let shortcuts = [
+    {
+      key: "playback-bind",
+      handler: () => {
+        if (tabsManager.getTabs()[0]) {
+          tabsManager
+            .getTabs()[0]
+            .view.webContents.send("remoteControl:execute", "playPause");
+        }
+      },
+    },
+    {
+      key: "next-bind",
+      handler: () => {
+        if (tabsManager.getTabs()[0]) {
+          tabsManager
+            .getTabs()[0]
+            .view.webContents.send("remoteControl:execute", "next");
+        }
+      },
+    },
+    {
+      key: "previous-bind",
+      handler: () => {
+        if (tabsManager.getTabs()[0]) {
+          tabsManager
+            .getTabs()[0]
+            .view.webContents.send("remoteControl:execute", "previous");
+        }
+      },
+    },
+  ];
+
   function registerShortcuts() {
     globalShortcut.unregisterAll();
-    if (store.get("playback-bind", defaults["playback-bind"])! !== "Unbound") {
-      globalShortcut.register(
-        store.get("playback-bind", defaults["playback-bind"])!,
-        () => {
-          if (tabsManager.getTabs()[0]) {
-            tabsManager
-              .getTabs()[0]
-              .view.webContents.send("remoteControl:execute", "playPause");
-          }
-        },
-      );
-    }
-    if (store.get("next-bind", defaults["next-bind"])! !== "Unbound") {
-      globalShortcut.register(
-        store.get("next-bind", defaults["next-bind"])!,
-        () => {
-          if (tabsManager.getTabs()[0]) {
-            tabsManager
-              .getTabs()[0]
-              .view.webContents.send("remoteControl:execute", "next");
-          }
-        },
-      );
-    }
-    if (store.get("previous-bind", defaults["next-bind"])! !== "Unbound") {
-      globalShortcut.register(
-        store.get("previous-bind", defaults["previous-bind"])!,
-        () => {
-          if (tabsManager.getTabs()[0]) {
-            tabsManager
-              .getTabs()[0]
-              .view.webContents.send("remoteControl:execute", "previous");
-          }
-        },
-      );
-    }
+    shortcuts.forEach((bind) => {
+      if (store.get(bind.key, defaults[bind.key])! !== "Unbound") {
+        globalShortcut.register(
+          store.get(bind.key, defaults[bind.key])!,
+          () => {
+            console.log(bind.key, "executed");
+            bind.handler();
+          },
+        );
+      }
+    });
   }
 
   ipcMain.on("set-config", (_, e) => {
-    console.log(e.key, e.value)
     store.set(e.key, e.value);
-    mainWindowManager.applyTheme()
+    console.log("Config set:", e.key, e.value)
+
+    mainWindowManager.applyTheme();
+
     if (e.key === "discord-rpc") {
       if (e.value === false) {
-        clearActivity();
+        discord.clear();
       } else {
-        discordClient().enable();
+        discord.enable();
       }
     }
+
     if (e.key === "miniplayer-on-top" && mainWindowManager.miniPlayerOpen()) {
-      mainWindowManager.window.setAlwaysOnTop(store.get("miniplayer-on-top") == true);
+      mainWindowManager.window.setAlwaysOnTop(
+        store.get("miniplayer-on-top") == true,
+      );
     }
+
+    if (e.key === "music-css" || e.key === "yt-css") {
+      tabsManager.updateCustomCss();
+    }
+
     if (tabsManager.getTabs().length > 0) {
       registerShortcuts();
     }
