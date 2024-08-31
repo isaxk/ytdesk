@@ -73,7 +73,6 @@ export async function createTabManager(mainWindow: BrowserWindow) {
       view.webContents.send("remoteControl:execute", command, value);
     });
 
-    view.webContents.toggleDevTools();
 
     let loaded = false;
     let oldCssKey: string | null = null;
@@ -93,7 +92,6 @@ export async function createTabManager(mainWindow: BrowserWindow) {
       });
     });
 
-    view.webContents.toggleDevTools();
 
     // async function updateCustomCss() {
     //   let ytCss = JSON.parse(store.get("music-css", "")!);

@@ -11,7 +11,7 @@
   export let active;
   export let tabs;
 
-  $: miniplayerEnabled = $musicDataStore !== null;
+  $: miniplayerEnabled = $musicDataStore.data !== null;
 
   musicDataStore.subscribe((e) => {
     console.log("musicDataStore", e);
