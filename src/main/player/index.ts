@@ -28,6 +28,8 @@ export function initPlayerEvents(mainWindowManager: MainWindowManager) {
     }
   });
 
+  mainWindowManager.window.webContents.send("video-data-changed", null);
+
   ipcMain.on("ytmView:storeStateChanged", (_, _queue, _like, v) => {
     volume = v;
     mainWindowManager.window.webContents.send("volume-changed", v);

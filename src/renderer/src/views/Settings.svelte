@@ -4,6 +4,7 @@
   import {
     CircleArrowOutDownRight,
     Cpu,
+    Info,
     Keyboard,
     Paintbrush,
     Settings2,
@@ -119,7 +120,7 @@
 </script>
 
 <div
-  class="flex h-screen items-center justify-center"
+  class="flex h-screen items-center justify-center bg-zinc-50 dark:bg-transparent"
   in:scale={{ start: 1.05, duration: 200 }}
 >
   <!-- <header
@@ -131,52 +132,81 @@
 	</header> -->
 
   <Tabs.Root asChild>
-    <div class="h-96 max-w-screen-sm flex-grow lg:max-w-screen-md">
-      <div class="mb-5 flex p-2 pr-0 text-4xl font-semibold">
-        <h1 class="flex-grow">Settings</h1>
-        <IconButton
-          icon={X}
-          on:click={() => {
-            window.api.closeSettings();
-            activeView.set("topbar");
-          }}
-        />
-      </div>
-      <div class="flex gap-10">
+    <div class="h-[450px] max-w-screen-md px- lg:px-0 flex-grow lg:max-w-screen-md">
+      <div class="flex h-full gap-10">
         <Tabs.List
-          class="text-md flex h-full w-72 flex-col text-left transition-all"
+          class="text-md flex h-full w-72 flex-col text-left"
         >
-          {#each tabs as tab}
-            <TabSidebarItem
-              value={tab.value}
-              label={tab.label}
-              icon={tab.icon}
-            />
-          {/each}
+          <h1 class="mb-5 text-4xl font-semibold">Settings</h1>
+          <div class="flex-grow">
+            {#each tabs as tab}
+              <TabSidebarItem
+                value={tab.value}
+                label={tab.label}
+                icon={tab.icon}
+              />
+            {/each}
+          </div>
+          <TabSidebarItem value="about" label="About" icon={Info} />
         </Tabs.List>
 
-        {#each tabs as tab}
-          <Tabs.Content
-            value={tab.value}
-            class="w-full overflow-y-scroll h-96py-2 pr-4"
-          >
-            <div class="flex flex-col gap-3">
-              {#if tab.value == "keybinds"}
-                <div
-                  class="py-2 text-sm font-light text-neutral-800 dark:text-zinc-200 text-wrap"
-                >
-                  These keybinds work anywhere on your computer unless another
-                  app conflicts. (Supports music playback only)
+        <ScrollArea.Root class="relative h-full w-full pr-4 py-3 border-zinc-200 dark:border-neutral-800 rounded-md">
+          <ScrollArea.Viewport class="h-full w-full">
+            <ScrollArea.Content class="min-h-full">
+              {#each tabs as tab}
+                <Tabs.Content value={tab.value} class="w-full pb-10 text-md">
+                  <div class="flex flex-col gap-3">
+                    {#if tab.value == "keybinds"}
+                      <div
+                        class="text-wrap py-2 text-sm font-light text-neutral-800 dark:text-zinc-200"
+                      >
+                        These keybinds work anywhere on your computer unless
+                        another app conflicts. (Supports music playback only)
+                      </div>
+                    {/if}
+                    {#if tab.settings}
+                      {#each tab.settings as setting}
+                        <SettingsItem {...setting} />
+                      {/each}
+                    {/if}
+                  </div>
+                </Tabs.Content>
+              {/each}
+              <Tabs.Content value="about" class="w-full py-16 pr-4 h-full text-center">
+                <div class="flex items-center justify-center h-full pt-20">
+                  <div class="">
+                    <div class="mb-5 flex">
+                      <div class="">
+                        <div class="text-4xl font-bold">YT Desk</div>
+                        <div class="text-sm">v-.-.-</div>
+                      </div>
+                    </div>
+                    <div class="text-sm mb-2">Made by isaxk</div>
+                    <div class="text-md text-blue-400"><a href="https://github.com/isaxk/ytdesk" target="_blank">View on Github</a></div>
+                  </div>
                 </div>
-              {/if}
-              {#if tab.settings}
-                {#each tab.settings as setting}
-                  <SettingsItem {...setting} />
-                {/each}
-              {/if}
-            </div>
-          </Tabs.Content>
-        {/each}
+              </Tabs.Content>
+            </ScrollArea.Content>
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar
+            orientation="vertical"
+            class="flex h-full w-2.5 touch-none select-none rounded-full border-l border-l-transparent p-px transition-all hover:w-3"
+          >
+            <ScrollArea.Thumb
+              class="relative flex-1 rounded-full bg-zinc-400 opacity-40 transition-opacity hover:opacity-100 dark:bg-white hover:dark:opacity-60"
+            />
+          </ScrollArea.Scrollbar>
+          <ScrollArea.Corner />
+        </ScrollArea.Root>
+        <div>
+          <IconButton
+            icon={X}
+            on:click={() => {
+              window.api.closeSettings();
+              activeView.set("topbar");
+            }}
+          />
+        </div>
       </div>
     </div>
   </Tabs.Root>

@@ -33,14 +33,14 @@ function updateTheme(mainWindow: BrowserWindow) {
 }
 
 switch (store.get("theme")) {
-  case "system":
-    bgColor = nativeTheme.shouldUseDarkColors ? darkBg : lightBg;
-    break;
   case "light":
     bgColor = lightBg;
     break;
   case "dark":
     bgColor = darkBg;
+    break;
+  default:
+    bgColor = nativeTheme.shouldUseDarkColors ? darkBg : lightBg;
     break;
 }
 
@@ -57,7 +57,7 @@ app.on("before-quit", () => {
 export function createMainWindowManager() {
   const mainWindow = new BrowserWindow({
     minWidth: 800,
-    minHeight: 450,
+    minHeight: 670,
     width: 1200,
     height: 700,
     titleBarStyle: "hiddenInset",
@@ -114,7 +114,7 @@ export function createMainWindowManager() {
     mainWindow.setMaximizable(true);
     mainWindow.setFullScreenable(true);
     mainWindow.setAlwaysOnTop(false);
-    mainWindow.setMinimumSize(800, 450);
+    mainWindow.setMinimumSize(800, 670);
   });
 
   mainWindow.on("close", (e) => {

@@ -20,7 +20,6 @@ function windowOpenHandler(details): WindowOpenHandlerResponse {
 
 async function updateCustomCss(
   key: string,
-  oldCssKey: string | null,
   view: WebContentsView,
 ) {
   let ytCss = JSON.parse(store.get(key, "")!);
@@ -92,7 +91,7 @@ export async function createTabManager(mainWindow: BrowserWindow) {
     });
 
     view.webContents.on("dom-ready", async () => {
-      await updateCustomCss("music-css", oldCssKey, view).then((key) => {
+      await updateCustomCss("music-css", view).then((key) => {
         oldCssKey = key;
       });
     });
@@ -143,7 +142,7 @@ export async function createTabManager(mainWindow: BrowserWindow) {
         if (oldCssKey !== null) {
           await view.webContents.removeInsertedCSS(oldCssKey).then(()=>console.log("remove"));
         }
-        await updateCustomCss("music-css", oldCssKey, view).then((key) => {
+        await updateCustomCss("music-css", view).then((key) => {
           oldCssKey = key;
 
         });
@@ -261,7 +260,7 @@ export async function createTabManager(mainWindow: BrowserWindow) {
     let oldCssKey: string | null = null;
 
     view.webContents.on("dom-ready", async () => {
-      await updateCustomCss("yt-css", oldCssKey, view).then((key) => {
+      await updateCustomCss("yt-css", view).then((key) => {
         oldCssKey = key;
       });
     });
@@ -286,7 +285,7 @@ export async function createTabManager(mainWindow: BrowserWindow) {
         if (oldCssKey !== null) {
           await view.webContents.removeInsertedCSS(oldCssKey);
         }
-        await updateCustomCss("yt-css", oldCssKey, view).then((key) => {
+        await updateCustomCss("yt-css", view).then((key) => {
           oldCssKey = key;
         });
       },

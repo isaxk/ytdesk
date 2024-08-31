@@ -50,7 +50,7 @@ export const api = {
     ipcRenderer.send("close-miniplayer");
   },
   onVideoDataChange: (listener: Function) => {
-    ipcRenderer.on("video-data-changed", (_, data) => {
+    ipcRenderer.on("video-data-changed", (_, data: musicData) => {
       listener(data);
     });
   },
