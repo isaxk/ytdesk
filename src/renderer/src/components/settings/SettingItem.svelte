@@ -105,7 +105,7 @@
           }, 400);
         }}
       >
-        <div class="mb-4 rounded-md border dark:border-neutral-600">
+        <div class="pb-4 rounded-md border dark:border-neutral-600">
           <Tabs.List
             class="flex w-full justify-stretch rounded bg-zinc-200 p-1 text-center dark:bg-neutral-800"
           >

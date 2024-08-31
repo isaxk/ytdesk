@@ -18,13 +18,10 @@ function windowOpenHandler(details): WindowOpenHandlerResponse {
   };
 }
 
-async function updateCustomCss(
-  key: string,
-  view: WebContentsView,
-) {
+async function updateCustomCss(key: string, view: WebContentsView) {
   let ytCss = JSON.parse(store.get(key, "")!);
   return new Promise<string | null>(async (resolve) => {
-    if (ytCss.enabled===true) {
+    if (ytCss.enabled === true) {
       if (ytCss.type === "url") {
         await loadCss(ytCss.url).then(async (css) => {
           resolve(await view.webContents.insertCSS(css));
@@ -140,11 +137,12 @@ export async function createTabManager(mainWindow: BrowserWindow) {
       },
       updateCss: async () => {
         if (oldCssKey !== null) {
-          await view.webContents.removeInsertedCSS(oldCssKey).then(()=>console.log("remove"));
+          await view.webContents
+            .removeInsertedCSS(oldCssKey)
+            .then(() => console.log("remove"));
         }
         await updateCustomCss("music-css", view).then((key) => {
           oldCssKey = key;
-
         });
       },
     };
@@ -263,6 +261,7 @@ export async function createTabManager(mainWindow: BrowserWindow) {
       await updateCustomCss("yt-css", view).then((key) => {
         oldCssKey = key;
       });
+      view.webContents.send("force-cinema", store.get("force-cinema", false));
     });
 
     return {
@@ -395,6 +394,15 @@ export async function createTabManager(mainWindow: BrowserWindow) {
       updateTabs();
       switchTab(0);
       loaded = true;
+    }
+  });
+
+  ipcMain.on("set-config", (_, e) => {
+    if (e.key === "force-cinema") {
+      tabs.forEach((tab) => {
+        tab.data().type === "yt" ??
+          tab.view.webContents.send("force-cinema", e.value);
+      });
     }
   });
 
