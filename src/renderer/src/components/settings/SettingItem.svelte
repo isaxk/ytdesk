@@ -105,7 +105,7 @@
           }, 400);
         }}
       >
-        <div class="pb-4 rounded-md border dark:border-neutral-600">
+        <div class="rounded-md border pb-4 dark:border-neutral-600">
           <Tabs.List
             class="flex w-full justify-stretch rounded bg-zinc-200 p-1 text-center dark:bg-neutral-800"
           >
@@ -117,12 +117,13 @@
             <Tabs.Trigger
               value="editor"
               class="w-full rounded p-1 data-[state=active]:bg-white data-[state=active]:font-medium data-[state=active]:dark:bg-neutral-700"
-              >Editor <span class="text-xs font-light">(advanced)</span></Tabs.Trigger
+              >Editor <span class="text-xs font-light">(advanced)</span
+              ></Tabs.Trigger
             >
           </Tabs.List>
           <div
             class="{value.type == 'url'
-              ? 'h-10'
+              ? 'h-12'
               : 'h-40'} transition-all duration-300"
           >
             <Tabs.Content value="url">
@@ -130,7 +131,7 @@
                 type="text"
                 placeholder="Paste the url to your css file."
                 bind:value={value.url}
-                class="w-full bg-transparent p-2 text-zinc-300 outline-none focus:text-current"
+                class="w-full bg-transparent p-2 text-neutral-500 outline-none transition-colors focus:text-current dark:text-zinc-300"
                 on:change={() => {
                   window.api.setConfig(
                     key,
@@ -140,6 +141,11 @@
                   );
                 }}
               />
+              <a
+                href="https://github.com/isaxk/ytdesk/wiki/Theming"
+                class="-pt-5 px-2 text-sm text-blue-500"
+                target="_blank">Find themes</a
+              >
             </Tabs.Content>
             <Tabs.Content value="editor" class="h-full">
               <textarea
