@@ -11,7 +11,6 @@ import { discordClient } from "./intergrations/discord";
 import { initPlayerEvents } from "./player";
 import { createTabManager } from "./tabs";
 import { createMainWindowManager, MainWindowManager } from "./windows";
-import { downloadCss, loadCss } from "./utils/customcss";
 
 const store = factory();
 

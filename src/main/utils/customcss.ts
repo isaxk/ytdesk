@@ -45,28 +45,27 @@ export function downloadCss(url: string) {
 //   );
 // });
 
-export function loadCss(url:string) {
+export function loadCss(url: string) {
   return new Promise<string>((resolve) => {
-    if(url==="") {
+    if (url === "") {
       resolve("");
       return;
     }
-    https.get(url, res => {
-      let data = ''
-      const headerDate = res.headers && res.headers.date ? res.headers.date : 'no response date';
-    
-      // @ts-ignore
-      res.on('data', (chunk:any) => {
-        data += chunk;
+    https
+      .get(url, (res) => {
+        let data = "";
+
+        // @ts-ignore
+        res.on("data", (chunk: any) => {
+          data += chunk;
+        });
+
+        res.on("end", () => {
+          resolve(data);
+        });
+      })
+      .on("error", (err) => {
+        console.log("Error: ", err.message);
       });
-    
-      res.on('end', () => {
-        resolve(data)
-      });
-    }).on('error', err => {
-      console.log('Error: ', err.message);
-    });
-  }
-)
-  
+  });
 }

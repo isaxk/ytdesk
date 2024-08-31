@@ -71,3 +71,19 @@ ipcRenderer.on("picture-in-picture", async () => {
     `)
   )();
 });
+
+ipcRenderer.on("force-cinema", async (_, is: boolean) => {
+  if (is) {
+    (
+      await webFrame.executeJavaScript(`
+      document.cookie = 'wide=1; expires='+new Date('3099').toUTCString()+'; path=/';
+    `)
+    )();
+  } else {
+    (
+      await webFrame.executeJavaScript(`
+      document.cookie = 'wide=0; expires='+new Date('3099').toUTCString()+'; path=/';
+    `)
+    )();
+  }
+});

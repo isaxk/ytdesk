@@ -75,7 +75,7 @@
             key,
             JSON.stringify({
               ...value,
-              enabled: e
+              enabled: e,
             }),
           );
         }}
@@ -105,19 +105,19 @@
           }, 400);
         }}
       >
-        <div class="mb-4 rounded-md border dark:border-neutral-600">
+        <div class="pb-4 rounded-md border dark:border-neutral-600">
           <Tabs.List
-            class="flex w-full justify-stretch rounded bg-neutral-800 p-1 text-center"
+            class="flex w-full justify-stretch rounded bg-zinc-200 p-1 text-center dark:bg-neutral-800"
           >
             <Tabs.Trigger
               value="url"
-              class="w-full rounded p-1 data-[state=active]:bg-neutral-700"
+              class="w-full rounded p-1 data-[state=active]:bg-white data-[state=active]:font-medium data-[state=active]:dark:bg-neutral-700"
               >URL</Tabs.Trigger
             >
             <Tabs.Trigger
               value="editor"
-              class="w-full rounded p-1 data-[state=active]:bg-neutral-700"
-              >Editor</Tabs.Trigger
+              class="w-full rounded p-1 data-[state=active]:bg-white data-[state=active]:font-medium data-[state=active]:dark:bg-neutral-700"
+              >Editor <span class="text-xs font-light">(advanced)</span></Tabs.Trigger
             >
           </Tabs.List>
           <div
@@ -152,7 +152,7 @@
                     }),
                   );
                 }}
-                class="h-full w-full bg-transparent p-2 font-mono outline-none text-sm"
+                class="h-full w-full bg-transparent p-2 font-mono text-sm outline-none"
                 placeholder="Paste or type css code here..."
               ></textarea>
             </Tabs.Content>
