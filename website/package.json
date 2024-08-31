@@ -23,6 +23,7 @@
   },
   "type": "module",
   "dependencies": {
+    "@arisbh/marqueeck": "^0.5.0",
     "svelte-inview": "^4.0.2"
   }
 }

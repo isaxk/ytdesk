@@ -1,13 +1,17 @@
 <script lang="ts">
+  import ThemeMarquee from "$lib/ThemeMarquee.svelte";
   import { inview } from "svelte-inview";
+  import { fly } from "svelte/transition";
 
   let video: HTMLVideoElement;
+
+  let sectionVisibility = [false, false, false];
 </script>
 
 <header
-  class="h-screen flex items-center justify-center relative overflow-y-hidden bg-gradient-to-tr from-slate-950 to-emerald-950 text-white"
+  class="relative flex h-screen items-center justify-center overflow-y-hidden bg-gradient-to-tr from-slate-950 to-emerald-950 text-white"
 >
-  <div class="absolute m-auto flex flex-col gap-32 items-end w-screen-2xl z-0">
+  <div class="w-screen-2xl absolute z-0 m-auto flex flex-col items-end gap-32">
     <img
       src="/ythero.png"
       alt=""
@@ -20,50 +24,94 @@
     />
   </div>
 
-  <div class="text-center z-20 -mt-6">
+  <div class="z-20 -mt-6 text-center">
     <h1 class="text-6xl font-extrabold">YT Desk</h1>
-    <h3 class="text-lg font-medium mt-2 mb-4 text-zinc-200">
+    <h3 class="mb-4 mt-2 text-lg font-medium text-zinc-200">
       Youtube & YT Music supercharged
     </h3>
     <a
       href="https://github.com/isaxk/ytdesk/releases/latest"
-      class="py-2.5 px-6 bg-white/30 rounded text-white">Download</a
+      class="rounded bg-white/30 px-6 py-2.5 text-white">Download</a
     >
   </div>
 </header>
 
 <section
-  class="max-w-screen-sm m-auto mt-20 flex flex-col sm:flex-row justify-center gap-10 sm:gap-20 px-10 box-content"
+  class="m-auto mt-20 box-content flex h-[240px] max-w-screen-sm flex-col justify-center gap-10 px-10 sm:flex-row sm:gap-20"
 >
-  <!-- svelte-ignore a11y-media-has-caption -->
-  <div class="sm:w-60 flex items-center justify-center sm:justify-start">
-    <img src="/miniplayer.png" alt="IGOR Miniplayer" class="w-60 h-60" />
-  </div>
-  <div class="flex-grow sm:flex justify-end text-center sm:text-left">
-    <div>
-      <div class="text-4xl font-bold mb-4">Miniplayer</div>
-      <ul class="text-lg list-disc ml-4 w-full">
-        <li>Simple and clean</li>
-        <li>Quick access to frequent controls</li>
-        <li>Always on top (optional)</li>
-      </ul>
+  {#if sectionVisibility[0]}
+    <!-- svelte-ignore a11y-media-has-caption -->
+    <div
+      class="flex items-center justify-center sm:w-60 sm:justify-start"
+      in:fly={{ x: -100, duration: 400, delay: 50 }}
+    >
+      <img src="/miniplayer.png" alt="IGOR Miniplayer" class="h-60 w-60" />
     </div>
-  </div>
+    <div
+      class="flex-grow justify-end text-center sm:flex sm:text-left"
+      in:fly={{ x: 100, duration: 400, delay: 100 }}
+    >
+      <div>
+        <div class="mb-4 text-4xl font-bold">Miniplayer</div>
+        <ul class="ml-4 w-full list-disc text-lg">
+          <li>Simple and clean</li>
+          <li>Quick access to frequent controls</li>
+          <li>Always on top (optional)</li>
+        </ul>
+      </div>
+    </div>
+  {/if}
 </section>
+<div
+  use:inview
+  on:inview_enter={() => {
+    sectionVisibility[0] = true;
+  }}
+></div>
 
 <section
-  class="max-w-screen-sm m-auto mt-40 sm:mt-20 flex flex-col-reverse sm:flex-row justify-center gap-10 sm:gap-20 px-10 box-content mb-32"
+  class="m-auto mb-10 mt-40 box-content flex h-[240px] max-w-screen-sm flex-col-reverse justify-center gap-10 px-10 sm:mt-20 sm:flex-row sm:gap-20"
 >
   <!-- svelte-ignore a11y-media-has-caption -->
 
-  <div class="sm:w-1/2 pt-10 text-center sm:text-left text-lg">
-    <div class="text-4xl font-bold mb-4">Discord Presence</div>
-    Share what your listening to/watching with your discord friends.
-  </div>
-  <div class="sm:w-60 flex items-center justify-center sm:justify-end">
-    <img src="/discord.png" alt="IGOR Miniplayer" class="w-60 h-60 scale-125" />
-  </div>
+  {#if sectionVisibility[1]}
+    <div
+      class="pt-10 text-center text-lg sm:w-1/2 sm:text-left"
+      in:fly={{ x: -100, duration: 400, delay: 50 }}
+    >
+      <div class="mb-4 text-4xl font-bold">Discord Presence</div>
+      Share what your listening to/watching with your discord friends.
+    </div>
+    <div
+      class="flex items-center justify-center sm:w-60 sm:justify-end"
+      in:fly={{ x: 100, duration: 400, delay: 100 }}
+    >
+      <img
+        src="/discord.png"
+        alt="IGOR Miniplayer"
+        class="h-60 w-60 scale-125"
+      />
+    </div>
+  {/if}
 </section>
+<div
+  use:inview
+  on:inview_enter={() => {
+    sectionVisibility[1] = true;
+  }}
+></div>
+
+<div class="h-96">
+  {#if sectionVisibility[2]}
+    <ThemeMarquee />
+  {/if}
+</div>
+<div
+  use:inview
+  on:inview_enter={() => {
+    sectionVisibility[2] = true;
+  }}
+></div>
 
 <style lang="postcss">
   :global(body) {
