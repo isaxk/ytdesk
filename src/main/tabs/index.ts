@@ -19,15 +19,22 @@ function windowOpenHandler(details): WindowOpenHandlerResponse {
 }
 
 async function updateCustomCss(key: string, view: WebContentsView) {
-  let ytCss = JSON.parse(store.get(key, "")!);
+  let ytCss = JSON.parse(store.get(key, JSON.stringify(""))!);
+  console.log(ytCss);
   return new Promise<string | null>(async (resolve) => {
+    if (ytCss === "") {
+      resolve(null);
+      return;
+    }
     if (ytCss.enabled === true) {
       if (ytCss.type === "url") {
         await loadCss(ytCss.url).then(async (css) => {
           resolve(await view.webContents.insertCSS(css));
         });
-      } else {
+      } else if (ytCss.type === "editor") {
         resolve(await view.webContents.insertCSS(ytCss.css));
+      } else {
+        resolve(null);
       }
     } else {
       resolve(null);
@@ -39,13 +46,14 @@ const store = factory();
 
 let currentTab: number | null = 0;
 let isFullscreen: boolean = false;
+let isSidebar: boolean = false;
 
 export async function createTabManager(mainWindow: BrowserWindow) {
   function bounds() {
     return {
       x: 0,
       y: isFullscreen ? 0 : 40,
-      width: mainWindow.getBounds().width,
+      width: mainWindow.getBounds().width - (isSidebar && !isFullscreen ? 300 : 0),
       height: mainWindow.getBounds().height - (isFullscreen ? 0 : 40),
     };
   }
@@ -73,7 +81,6 @@ export async function createTabManager(mainWindow: BrowserWindow) {
       view.webContents.send("remoteControl:execute", command, value);
     });
 
-
     let loaded = false;
     let oldCssKey: string | null = null;
 
@@ -91,7 +98,6 @@ export async function createTabManager(mainWindow: BrowserWindow) {
         oldCssKey = key;
       });
     });
-
 
     // async function updateCustomCss() {
     //   let ytCss = JSON.parse(store.get("music-css", "")!);
@@ -124,6 +130,9 @@ export async function createTabManager(mainWindow: BrowserWindow) {
       },
       set: () => {
         mainWindow.contentView.addChildView(view);
+      },
+      bounds: () => {
+        view.setBounds(bounds());
       },
       data: () => {
         return {
@@ -183,6 +192,9 @@ export async function createTabManager(mainWindow: BrowserWindow) {
       set: () => {
         mainWindow.contentView.addChildView(view);
       },
+      bounds: () => {
+        view.setBounds(bounds());
+      },
       data: () => {
         return {
           title: view.webContents.getTitle(),
@@ -195,7 +207,7 @@ export async function createTabManager(mainWindow: BrowserWindow) {
     };
   }
 
-  function createTab() {
+  function createTab(url="https://www.youtube.com") {
     const view = new WebContentsView({
       webPreferences: {
         transparent: true,
@@ -212,7 +224,7 @@ export async function createTabManager(mainWindow: BrowserWindow) {
       view.setBounds(bounds());
     });
     view.setBounds(bounds());
-    view.webContents.loadURL("https://www.youtube.com");
+    view.webContents.loadURL(url);
     view.webContents.setWindowOpenHandler(windowOpenHandler);
 
     let id = Date.now();
@@ -269,6 +281,9 @@ export async function createTabManager(mainWindow: BrowserWindow) {
       },
       set: () => {
         mainWindow.contentView.addChildView(view);
+      },
+      bounds: () => {
+        view.setBounds(bounds());
       },
       data: () => {
         return {
@@ -341,6 +356,8 @@ export async function createTabManager(mainWindow: BrowserWindow) {
     updateTabs();
   });
 
+  setInterval(updateTabs, 500);
+
   ipcMain.on("page-action", (_, i) => {
     if (currentTab !== null) {
       switch (i) {
@@ -376,6 +393,25 @@ export async function createTabManager(mainWindow: BrowserWindow) {
       tabs[currentTab].view.setVisible(false);
       tabs[currentTab].unset();
     }
+  });
+
+  ipcMain.on("open-sidebar", () => {
+    isSidebar = true;
+    tabs.forEach((tab) => {
+      tab.bounds();
+    });
+  });
+
+  ipcMain.on("close-sidebar", () => {
+    isSidebar = false;
+    tabs.forEach((tab) => {
+      tab.bounds();
+    });
+  });
+
+  ipcMain.on("open-bookmark", (_, url) => {
+    tabs = [...tabs, createTab(url)];
+    switchTab(tabs.length-1);
   });
 
   ipcMain.on("close-miniplayer", () => {
