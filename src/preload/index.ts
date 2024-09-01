@@ -46,8 +46,17 @@ export const api = {
   openMiniplayer: () => {
     ipcRenderer.send("open-miniplayer");
   },
+  openSidebar: () => {
+    ipcRenderer.send("open-sidebar");
+  },
   closeMiniplayer: () => {
     ipcRenderer.send("close-miniplayer");
+  },
+  closeSidebar: () => {
+    ipcRenderer.send("close-sidebar");
+  },
+  openBookmark: (url:string) => {
+    ipcRenderer.send("open-bookmark", url);
   },
   onVideoDataChange: (listener: Function) => {
     ipcRenderer.on("video-data-changed", (_, data: musicData) => {

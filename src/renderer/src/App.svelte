@@ -1,10 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import MenuBar from "./views/MenuBar.svelte";
-  import { activeView, musicDataStore, theme } from "./lib/stores";
+  import { activeView, musicDataStore, showBookmarks, theme } from "./lib/stores";
   import Settings from "./views/Settings.svelte";
   import MiniPlayer from "./views/MiniPlayer.svelte";
   import type { musicData, playerState } from "./lib/types";
+  import Spinner from "./components/ui/Spinner.svelte";
+  import Bookmarks from "./views/Bookmarks.svelte";
 
   onMount(async () => {
     theme.set(await window.api.getTheme());
@@ -41,10 +43,22 @@
 {#if $theme !== null}
   <div class="{$theme} contents">
     <main
-      class="h-screen bg-white text-black transition-all dark:bg-[#121212] dark:text-white"
+      class="flex h-screen flex-col bg-white transition-all dark:bg-[#121212] text-black dark:text-white"
     >
       {#if $activeView === "topbar"}
-        <MenuBar {active} {tabs} />
+        <main
+          class="flex h-screen flex-col bg-white transition-all dark:bg-[#121212] "
+        >
+          <MenuBar {active} {tabs} />
+          <div class="flex h-full flex-grow">
+            <div class="flex flex-grow items-center justify-center">
+              <Spinner />
+            </div>
+            {#if $showBookmarks}
+              <Bookmarks {tabs} {active} />
+            {/if}
+          </div>
+        </main>
       {:else if $activeView === "settings"}
         <Settings />
       {:else if $activeView === "miniplayer"}
