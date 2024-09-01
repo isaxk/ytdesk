@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Bouncer from "$lib/Bouncer.svelte";
   import ThemeMarquee from "$lib/ThemeMarquee.svelte";
   import { inview } from "svelte-inview";
   import { fly } from "svelte/transition";
@@ -9,7 +10,7 @@
 </script>
 
 <header
-  class="relative flex h-screen items-center justify-center overflow-y-hidden bg-gradient-to-tr from-slate-950 to-emerald-950 text-white"
+  class="relative flex h-screen items-center justify-center overflow-x-hidden overflow-y-hidden bg-gradient-to-tr from-slate-950 to-emerald-950 text-white"
 >
   <div class="w-screen-2xl absolute z-0 m-auto flex flex-col items-end gap-32">
     <img
@@ -34,10 +35,14 @@
       class="rounded bg-white/30 px-6 py-2.5 text-white">Download</a
     >
   </div>
+  <div
+    class="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-b from-transparent via-neutral-900/95 via-80% to-neutral-900"
+  ></div>
+  <Bouncer />
 </header>
 
 <section
-  class="m-auto mt-20 box-content flex h-[240px] max-w-screen-sm flex-col justify-center gap-10 px-10 sm:flex-row sm:gap-20"
+  class="m-auto mt-40 box-content flex h-[240px] max-w-screen-sm flex-col justify-center gap-10 px-10 sm:mt-20 sm:flex-row sm:gap-20"
 >
   {#if sectionVisibility[0]}
     <!-- svelte-ignore a11y-media-has-caption -->
@@ -70,7 +75,7 @@
 ></div>
 
 <section
-  class="m-auto mb-10 mt-40 box-content flex h-[240px] max-w-screen-sm flex-col-reverse justify-center gap-10 px-10 sm:mt-20 sm:flex-row sm:gap-20"
+  class="m-auto mb-10 mt-80 box-content flex h-[240px] max-w-screen-sm flex-col-reverse justify-center gap-10 px-10 sm:mt-32 sm:flex-row sm:gap-20"
 >
   <!-- svelte-ignore a11y-media-has-caption -->
 
@@ -101,10 +106,8 @@
   }}
 ></div>
 
-<div class="h-96">
-  {#if sectionVisibility[2]}
-    <ThemeMarquee />
-  {/if}
+<div class="mt-40 h-96 sm:mt-0">
+  <ThemeMarquee visible={sectionVisibility[2]} />
 </div>
 <div
   use:inview
@@ -115,6 +118,6 @@
 
 <style lang="postcss">
   :global(body) {
-    @apply bg-neutral-900 text-zinc-200;
+    @apply overflow-x-hidden bg-neutral-900 text-zinc-200;
   }
 </style>
