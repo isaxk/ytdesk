@@ -45,7 +45,7 @@
       >
     {/if}
     <div
-      class="-mr-3 flex min-h-0 flex-grow flex-col gap-2 overflow-y-scroll pb-10 pr-3 pt-2"
+      class="-mr-3 flex min-h-0 flex-grow flex-col gap-2 overflow-y-scroll transparent-scroll pb-10 pr-3 pt-2"
     >
       {#each $bookmarks.toReversed() as tab, i (tab.url)}
         <Bookmark
@@ -59,3 +59,12 @@
     </div>
   </div>
 </div>
+
+<style lang="postcss">
+  .transparent-scroll::-webkit-scrollbar {
+    @apply bg-transparent w-2;
+  }
+  .transparent-scroll::-webkit-scrollbar-thumb {
+    @apply bg-zinc-500 dark:bg-neutral-300 w-2 my-3 rounded-full;
+  }
+</style>
