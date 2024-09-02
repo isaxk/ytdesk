@@ -24,9 +24,11 @@
     : 0;
 
   function handleSlide(e) {
-    if (progress == e || (progress - e < 10 && progress - e > -10)) return;
-    progress = e;
-    window.api.musicRemote("seekTo", e);
+    if (!$musicDataStore.data.isLiveContent) {
+      if (progress == e || (progress - e < 10 && progress - e > -10)) return;
+      progress = e;
+      window.api.musicRemote("seekTo", e);
+    }
   }
 </script>
 
