@@ -1,5 +1,5 @@
 # YT Desk
-### Enhance your Youtube & Youtube Music Experience
+### Enchance your Youtube & Youtube Music Experience
 
 - Miniplayer
 - Discord Rich Presence
